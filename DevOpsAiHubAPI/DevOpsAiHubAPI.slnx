@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="DevOpsAiHub.Api/DevOpsAiHub.Api.csproj" Id="eea1f5a0-6e46-467e-8c38-9f833e9e0cc8" />
+  <Project Path="DevOpsAiHub.Application/DevOpsAiHub.Application.csproj" Id="4eb16347-7c4b-42ea-aa0f-69ee6b587af7" />
+  <Project Path="DevOpsAiHub.Domain/DevOpsAiHub.Domain.csproj" Id="f5c0aaac-8c2f-40d9-8778-d82e642b5b56" />
+  <Project Path="DevOpsAiHub.Infrastructure/DevOpsAiHub.Infrastructure.csproj" Id="ccb5a196-dc3c-48dc-9c7a-67a6380febaa" />
+</Solution>

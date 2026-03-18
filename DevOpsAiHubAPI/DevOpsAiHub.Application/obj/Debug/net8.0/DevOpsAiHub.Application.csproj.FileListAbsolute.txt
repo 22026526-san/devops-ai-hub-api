@@ -1,0 +1,16 @@
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\bin\Debug\net8.0\DevOpsAiHub.Application.deps.json
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\bin\Debug\net8.0\DevOpsAiHub.Application.dll
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\bin\Debug\net8.0\DevOpsAiHub.Application.pdb
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\bin\Debug\net8.0\DevOpsAiHub.Domain.dll
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\bin\Debug\net8.0\DevOpsAiHub.Domain.pdb
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\obj\Debug\net8.0\DevOpsAiHub.Application.csproj.AssemblyReference.cache
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\obj\Debug\net8.0\DevOpsAiHub.Application.GeneratedMSBuildEditorConfig.editorconfig
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\obj\Debug\net8.0\DevOpsAiHub.Application.AssemblyInfoInputs.cache
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\obj\Debug\net8.0\DevOpsAiHub.Application.AssemblyInfo.cs
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\obj\Debug\net8.0\DevOpsAiHub.Application.csproj.CoreCompileInputs.cache
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\obj\Debug\net8.0\DevOpsAiHub.Application.sourcelink.json
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\obj\Debug\net8.0\DevOpsAi.79B9749E.Up2Date
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\obj\Debug\net8.0\DevOpsAiHub.Application.dll
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\obj\Debug\net8.0\refint\DevOpsAiHub.Application.dll
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\obj\Debug\net8.0\DevOpsAiHub.Application.pdb
+F:\KLTN\devops-hub\devops-ai-hub-api\DevOpsAiHubAPI\DevOpsAiHub.Application\obj\Debug\net8.0\ref\DevOpsAiHub.Application.dll

@@ -1,0 +1,134 @@
+[
+  {
+    "ContainingType": "DevOpsAiHub.Api.Controllers.AuthController",
+    "Method": "RequestForgotPasswordOtp",
+    "RelativePath": "api/auth/forgot-password/request-otp",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DevOpsAiHub.Application.Features.Auth.DTOs.ForgotPasswordRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DevOpsAiHub.Api.Controllers.AuthController",
+    "Method": "ResetPassword",
+    "RelativePath": "api/auth/forgot-password/reset",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DevOpsAiHub.Application.Features.Auth.DTOs.ResetPasswordRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DevOpsAiHub.Api.Controllers.AuthController",
+    "Method": "Login",
+    "RelativePath": "api/auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DevOpsAiHub.Application.Features.Auth.DTOs.LoginRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DevOpsAiHub.Api.Controllers.AuthController",
+    "Method": "RequestRegisterOtp",
+    "RelativePath": "api/auth/register/request-otp",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DevOpsAiHub.Application.Features.Auth.DTOs.RegisterRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DevOpsAiHub.Api.Controllers.AuthController",
+    "Method": "VerifyRegisterOtp",
+    "RelativePath": "api/auth/register/verify-otp",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DevOpsAiHub.Application.Features.Auth.DTOs.VerifyRegisterOtpRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DevOpsAiHub.Api.Controllers.UsersController",
+    "Method": "UpdateAvatar",
+    "RelativePath": "api/users/avatar",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "File",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DevOpsAiHub.Api.Controllers.UsersController",
+    "Method": "RemoveAvatar",
+    "RelativePath": "api/users/avatar",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DevOpsAiHub.Api.Controllers.UsersController",
+    "Method": "GetMyProfile",
+    "RelativePath": "api/users/me",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DevOpsAiHub.Api.Controllers.UsersController",
+    "Method": "UpdateProfile",
+    "RelativePath": "api/users/profile",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DevOpsAiHub.Application.Features.Users.DTOs.UpdateProfileRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
