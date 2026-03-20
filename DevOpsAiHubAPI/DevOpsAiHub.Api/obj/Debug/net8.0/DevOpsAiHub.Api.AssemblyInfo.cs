@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DevOpsAiHub.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e6666560d1610eac43ecb3e714bc386da83070d4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e58c41014ed47b2ae1df42ad389b048ea4cfec59")]
 [assembly: System.Reflection.AssemblyProductAttribute("DevOpsAiHub.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DevOpsAiHub.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

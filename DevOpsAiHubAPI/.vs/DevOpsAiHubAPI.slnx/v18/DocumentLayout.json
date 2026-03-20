@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{EEA1F5A0-6E46-467E-8C38-9F833E9E0CC8}|DevOpsAiHub.Api\\DevOpsAiHub.Api.csproj|f:\\kltn\\devops-hub\\devops-ai-hub-api\\devopsaihubapi\\devopsaihub.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EEA1F5A0-6E46-467E-8C38-9F833E9E0CC8}|DevOpsAiHub.Api\\DevOpsAiHub.Api.csproj|solutionrelative:devopsaihub.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EEA1F5A0-6E46-467E-8C38-9F833E9E0CC8}|DevOpsAiHub.Api\\DevOpsAiHub.Api.csproj|f:\\kltn\\devops-hub\\devops-ai-hub-api\\devopsaihubapi\\devopsaihub.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EEA1F5A0-6E46-467E-8C38-9F833E9E0CC8}|DevOpsAiHub.Api\\DevOpsAiHub.Api.csproj|solutionrelative:devopsaihub.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{4EB16347-7C4B-42EA-AA0F-69EE6B587AF7}|DevOpsAiHub.Application\\DevOpsAiHub.Application.csproj|f:\\kltn\\devops-hub\\devops-ai-hub-api\\devopsaihubapi\\devopsaihub.application\\features\\users\\services\\userappservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{4EB16347-7C4B-42EA-AA0F-69EE6B587AF7}|DevOpsAiHub.Application\\DevOpsAiHub.Application.csproj|solutionrelative:devopsaihub.application\\features\\users\\services\\userappservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -38,7 +46,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -50,20 +58,46 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\DevOpsAiHub.Api\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "DevOpsAiHub.Api\\Controllers\\AuthController.cs",
+              "ToolTip": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\DevOpsAiHub.Api\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "DevOpsAiHub.Api\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAAA5wAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-19T18:28:51.987Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\DevOpsAiHub.Api\\Program.cs",
+              "RelativeDocumentMoniker": "DevOpsAiHub.Api\\Program.cs",
+              "ToolTip": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\DevOpsAiHub.Api\\Program.cs",
+              "RelativeToolTip": "DevOpsAiHub.Api\\Program.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAowBQAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-19T17:56:30.767Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "UserAppService.cs",
               "DocumentMoniker": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\DevOpsAiHub.Application\\Features\\Users\\Services\\UserAppService.cs",
               "RelativeDocumentMoniker": "DevOpsAiHub.Application\\Features\\Users\\Services\\UserAppService.cs",
               "ToolTip": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\DevOpsAiHub.Application\\Features\\Users\\Services\\UserAppService.cs",
               "RelativeToolTip": "DevOpsAiHub.Application\\Features\\Users\\Services\\UserAppService.cs",
-              "ViewState": "AgIAAF8AAAAAAAAAAAAowGgAAAAnAAAAAAAAAA==",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAYwBMAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-14T05:06:42.549Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "UsersController.cs",
               "DocumentMoniker": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\DevOpsAiHub.Api\\Controllers\\UsersController.cs",
               "RelativeDocumentMoniker": "DevOpsAiHub.Api\\Controllers\\UsersController.cs",
@@ -75,7 +109,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
               "Title": "LoginRequestDto.cs",
               "DocumentMoniker": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\DevOpsAiHub.Application\\Features\\Auth\\DTOs\\LoginRequestDto.cs",
               "RelativeDocumentMoniker": "DevOpsAiHub.Application\\Features\\Auth\\DTOs\\LoginRequestDto.cs",
@@ -87,7 +121,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "UpdateAvatarResponseDto.cs",
               "DocumentMoniker": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\DevOpsAiHub.Application\\Features\\Users\\DTOs\\UpdateAvatarResponseDto.cs",
               "RelativeDocumentMoniker": "DevOpsAiHub.Application\\Features\\Users\\DTOs\\UpdateAvatarResponseDto.cs",
@@ -99,7 +133,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 7,
               "Title": "IAuthAppService.cs",
               "DocumentMoniker": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\DevOpsAiHub.Application\\Features\\Auth\\Services\\IAuthAppService.cs",
               "RelativeDocumentMoniker": "DevOpsAiHub.Application\\Features\\Auth\\Services\\IAuthAppService.cs",
@@ -111,7 +145,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 8,
               "Title": "AuthAppService.cs",
               "DocumentMoniker": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\DevOpsAiHub.Application\\Features\\Auth\\Services\\AuthAppService.cs",
               "RelativeDocumentMoniker": "DevOpsAiHub.Application\\Features\\Auth\\Services\\AuthAppService.cs",
@@ -123,7 +157,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "RegisterRequestDto.cs",
               "DocumentMoniker": "F:\\KLTN\\devops-hub\\devops-ai-hub-api\\DevOpsAiHubAPI\\DevOpsAiHub.Application\\Features\\Auth\\DTOs\\RegisterRequestDto.cs",
               "RelativeDocumentMoniker": "DevOpsAiHub.Application\\Features\\Auth\\DTOs\\RegisterRequestDto.cs",

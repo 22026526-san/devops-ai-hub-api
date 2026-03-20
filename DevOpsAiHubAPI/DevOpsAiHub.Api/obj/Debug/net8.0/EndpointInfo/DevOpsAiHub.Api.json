@@ -344,7 +344,7 @@
     "securitySchemes": {
       "Bearer": {
         "type": "http",
-        "description": "Nhập 'Bearer' [khoảng trắng] và dán token của bạn vào bên dưới.\r\n\r\nVí dụ: \"Bearer eyJhbGciOiJIUzI1...\"",
+        "description": "Enter your JWT token",
         "scheme": "Bearer",
         "bearerFormat": "JWT"
       }
