@@ -24,6 +24,22 @@ public class UsersController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("{userId:guid}/profile")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetUserProfile(Guid userId, CancellationToken cancellationToken)
+    {
+        var result = await _userAppService.GetUserProfileByIdAsync(userId, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpGet("profiles")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAllProfiles(CancellationToken cancellationToken)
+    {
+        var result = await _userAppService.GetAllProfilesAsync(cancellationToken);
+        return Ok(result);
+    }
+
     [HttpPut("profile")]
     public async Task<IActionResult> UpdateProfile(
         [FromBody] UpdateProfileRequestDto request,

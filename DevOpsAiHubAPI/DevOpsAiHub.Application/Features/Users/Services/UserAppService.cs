@@ -13,6 +13,7 @@ public class UserAppService : IUserAppService
     private readonly ICurrentUserService _currentUserService;
     private readonly IUserRepository _userRepository;
     private readonly IUserProfileRepository _userProfileRepository;
+    private readonly IUserFollowRepository _userFollowRepository;
     private readonly ICloudinaryService _cloudinaryService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IApplicationDbContext _context;
@@ -21,6 +22,7 @@ public class UserAppService : IUserAppService
         ICurrentUserService currentUserService,
         IUserRepository userRepository,
         IUserProfileRepository userProfileRepository,
+        IUserFollowRepository userFollowRepository,
         ICloudinaryService cloudinaryService,
         IDateTimeService dateTimeService,
         IApplicationDbContext context)
@@ -28,6 +30,7 @@ public class UserAppService : IUserAppService
         _currentUserService = currentUserService;
         _userRepository = userRepository;
         _userProfileRepository = userProfileRepository;
+        _userFollowRepository = userFollowRepository;
         _cloudinaryService = cloudinaryService;
         _dateTimeService = dateTimeService;
         _context = context;
@@ -39,24 +42,38 @@ public class UserAppService : IUserAppService
         if (userId is null)
             throw new UnauthorizedException("User is not authenticated.");
 
-        var user = await _userRepository.GetByIdAsync(userId.Value, cancellationToken);
-        if (user is null)
-            throw new NotFoundException("User not found.");
-
-        var profile = user.Profile ?? await _userProfileRepository.GetByUserIdAsync(userId.Value, cancellationToken);
-
-        return new UserProfileDto
-        {
-            UserId = user.Id,
-            Email = user.Email,
-            Username = user.Username,
-            FullName = profile?.FullName,
-            AvatarUrl = profile?.AvatarUrl,
-            Bio = profile?.Bio,
-            GithubUrl = profile?.GithubUrl
-        };
+        return await BuildUserProfileDtoAsync(userId.Value, cancellationToken);
     }
 
+    public async Task<UserProfileDto> GetUserProfileByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await BuildUserProfileDtoAsync(userId, cancellationToken);
+    }
+    public async Task<List<UserProfileDto>> GetAllProfilesAsync(CancellationToken cancellationToken = default)
+    {
+        var users = await _userRepository.GetAllAsync(cancellationToken);
+
+        var userIds = users.Select(x => x.Id).ToList();
+        var followerMap = await _userFollowRepository.CountFollowersByUserIdsAsync(userIds, cancellationToken);
+
+        return users.Select(user =>
+        {
+            var profile = user.Profile;
+            followerMap.TryGetValue(user.Id, out var followerCount);
+
+            return new UserProfileDto
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                Username = user.Username,
+                FullName = profile?.FullName,
+                AvatarUrl = profile?.AvatarUrl,
+                Bio = profile?.Bio,
+                GithubUrl = profile?.GithubUrl,
+                FollowerCount = followerCount
+            };
+        }).ToList();
+    }
     public async Task UpdateProfileAsync(UpdateProfileRequestDto request, CancellationToken cancellationToken = default)
     {
         var userId = _currentUserService.UserId;
@@ -131,5 +148,27 @@ public class UserAppService : IUserAppService
 
         _userProfileRepository.Update(profile);
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task<UserProfileDto> BuildUserProfileDtoAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
+        if (user is null)
+            throw new NotFoundException("User not found.");
+
+        var profile = user.Profile ?? await _userProfileRepository.GetByUserIdAsync(userId, cancellationToken);
+        var followerCount = await _userFollowRepository.CountFollowersAsync(userId, cancellationToken);
+
+        return new UserProfileDto
+        {
+            UserId = user.Id,
+            Email = user.Email,
+            Username = user.Username,
+            FullName = profile?.FullName,
+            AvatarUrl = profile?.AvatarUrl,
+            Bio = profile?.Bio,
+            GithubUrl = profile?.GithubUrl,
+            FollowerCount = followerCount
+        };
     }
 }

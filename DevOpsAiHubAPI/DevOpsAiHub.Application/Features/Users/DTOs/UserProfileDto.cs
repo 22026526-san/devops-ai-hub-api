@@ -9,4 +9,5 @@ public class UserProfileDto
     public string? AvatarUrl { get; set; }
     public string? Bio { get; set; }
     public string? GithubUrl { get; set; }
+    public int FollowerCount { get; set; }
 }

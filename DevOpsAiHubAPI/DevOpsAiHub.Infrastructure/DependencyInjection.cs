@@ -36,6 +36,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+        services.AddScoped<IUserFollowRepository, UserFollowRepository>();
         services.AddScoped<ITagRepository, TagRepository>();
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();

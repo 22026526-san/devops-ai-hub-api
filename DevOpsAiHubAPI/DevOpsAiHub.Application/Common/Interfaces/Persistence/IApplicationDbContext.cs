@@ -11,5 +11,7 @@ public interface IApplicationDbContext
     DbSet<UserProfile> UserProfiles { get; }
     DbSet<Tag> Tags { get; }
 
+    DbSet<UserFollow> UserFollows { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
