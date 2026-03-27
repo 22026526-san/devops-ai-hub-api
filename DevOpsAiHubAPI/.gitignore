@@ -1,0 +1,67 @@
+## Visual Studio Build Results
+[Bb]in/
+[Oo]bj/
+[Tt]est[Cc]ontext[Rr]esults/
+[Bb]uild[Ll]og.*
+*.VisualState.xml
+TestResult.xml
+nunit-agent.log
+
+## Visual Studio Visual State & User Files
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.vssscc
+*.vspscc
+
+## Entity Framework & SQL Server
+*.db
+*.db-shm
+*.db-wal
+*.sqlproj.user
+*.mdf
+*.ldf
+
+## Mac & Windows system files
+.DS_Store
+Thumbs.db
+
+## User-specific files
+*.user
+*.userprefs
+*.suo
+
+## ReSharper and other IDE extensions
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+## NuGet Packages
+*.nupkg
+# Không chặn folder packages nếu bạn dùng cơ chế cũ, 
+# nhưng với .NET 6/8 hiện tại thì NuGet nằm ở folder global nên không cần lo.
+**/packages/*
+!**/packages/build/
+
+## Publish folders
+publish/
+*.azurepubxml
+
+## Docker
+.dockerignore
+
+## .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## OS Metadata
+.DS_Store
+Thumbs.db
+
+## Personal Settings (Important!)
+# Chặn các file chứa secret key hoặc cấu hình máy cá nhân
+appsettings.Development.json
+appsettings.Local.json

@@ -1,4 +1,5 @@
-﻿using DevOpsAiHub.Domain.Entities.Users;
+﻿using DevOpsAiHub.Domain.Entities.Posts;
+using DevOpsAiHub.Domain.Entities.Users;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
@@ -8,6 +9,7 @@ public interface IApplicationDbContext
 {
     DbSet<User> Users { get; }
     DbSet<UserProfile> UserProfiles { get; }
+    DbSet<Tag> Tags { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
