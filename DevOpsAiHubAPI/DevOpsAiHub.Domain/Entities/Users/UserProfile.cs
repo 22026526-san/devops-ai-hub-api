@@ -4,6 +4,7 @@ public class UserProfile
 {
     public Guid UserId { get; set; }
     public string? FullName { get; set; }
+    public string? JobTitle { get; set; }
     public string? AvatarUrl { get; set; }
     public string? AvatarPublicId { get; set; }
     public string? Bio { get; set; }

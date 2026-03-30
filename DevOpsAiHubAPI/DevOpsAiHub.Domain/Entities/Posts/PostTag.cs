@@ -8,6 +8,6 @@ public class PostTag : BaseEntity
     public Guid TagId { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    //public Post Post { get; set; } = null!;
-    //public Tag Tag { get; set; } = null!;
+    public Post Post { get; set; } = null!;
+    public Tag Tag { get; set; } = null!;
 }

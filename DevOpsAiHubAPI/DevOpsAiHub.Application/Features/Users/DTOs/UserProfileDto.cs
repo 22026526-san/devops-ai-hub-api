@@ -6,6 +6,7 @@ public class UserProfileDto
     public string Email { get; set; } = null!;
     public string Username { get; set; } = null!;
     public string? FullName { get; set; }
+    public string? JobTitle { get; set; }
     public string? AvatarUrl { get; set; }
     public string? Bio { get; set; }
     public string? GithubUrl { get; set; }

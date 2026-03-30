@@ -21,6 +21,10 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
             .HasColumnName("full_name")
             .HasMaxLength(150);
 
+        builder.Property(x => x.JobTitle)
+            .HasColumnName("job_title")
+            .HasMaxLength(100);
+
         builder.Property(x => x.AvatarUrl)
             .HasColumnName("avatar_url")
             .HasMaxLength(500);

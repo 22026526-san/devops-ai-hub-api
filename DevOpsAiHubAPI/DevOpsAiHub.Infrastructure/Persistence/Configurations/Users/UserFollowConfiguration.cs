@@ -36,13 +36,19 @@ public class UserFollowConfiguration : IEntityTypeConfiguration<UserFollow>
             .IsUnique()
             .HasDatabaseName("uq_user_follows");
 
+        builder.HasIndex(x => x.FollowerId)
+            .HasDatabaseName("ix_user_follows_follower_id");
+
+        builder.HasIndex(x => x.FollowingId)
+            .HasDatabaseName("ix_user_follows_following_id");
+
         builder.HasOne(x => x.Follower)
-            .WithMany()
+            .WithMany(x => x.FollowingUsers)
             .HasForeignKey(x => x.FollowerId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.Following)
-            .WithMany()
+            .WithMany(x => x.Followers)
             .HasForeignKey(x => x.FollowingId)
             .OnDelete(DeleteBehavior.Cascade);
     }

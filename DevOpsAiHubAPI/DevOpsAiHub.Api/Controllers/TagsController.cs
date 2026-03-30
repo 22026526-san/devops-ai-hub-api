@@ -33,7 +33,7 @@ public class TagsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(
         [FromBody] CreateTagRequestDto request,
         CancellationToken cancellationToken)
@@ -43,7 +43,7 @@ public class TagsController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(
         Guid id,
         [FromBody] UpdateTagRequestDto request,

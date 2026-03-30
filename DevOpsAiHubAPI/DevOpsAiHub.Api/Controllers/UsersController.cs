@@ -33,7 +33,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("profiles")]
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllProfiles(CancellationToken cancellationToken)
     {
         var result = await _userAppService.GetAllProfilesAsync(cancellationToken);
@@ -47,6 +47,14 @@ public class UsersController : ControllerBase
     {
         await _userAppService.UpdateProfileAsync(request, cancellationToken);
         return Ok(new { message = "Profile updated successfully." });
+    }
+
+    [HttpGet("suggested-follows")]
+    [Authorize]
+    public async Task<IActionResult> GetSuggestedProfiles(CancellationToken cancellationToken)
+    {
+        var result = await _userAppService.GetSuggestedProfilesAsync(cancellationToken);
+        return Ok(result);
     }
 
     [HttpPut("avatar")]
@@ -64,5 +72,26 @@ public class UsersController : ControllerBase
     {
         await _userAppService.RemoveAvatarAsync(cancellationToken);
         return Ok(new { message = "Avatar removed successfully." });
+    }
+    [HttpPut("{userId:guid}/role")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateUserRole(
+    Guid userId,
+    [FromBody] UpdateUserRoleRequestDto request,
+    CancellationToken cancellationToken)
+    {
+        await _userAppService.UpdateUserRoleAsync(userId, request, cancellationToken);
+        return Ok(new { message = "User role updated successfully." });
+    }
+
+    [HttpPut("{userId:guid}/status")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateUserStatus(
+        Guid userId,
+        [FromBody] UpdateUserStatusRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        await _userAppService.UpdateUserStatusAsync(userId, request, cancellationToken);
+        return Ok(new { message = "User status updated successfully." });
     }
 }

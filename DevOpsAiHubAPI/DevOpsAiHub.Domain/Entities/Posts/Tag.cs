@@ -8,5 +8,5 @@ public class Tag : BaseEntity
     public int PostCount { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    //public ICollection<PostTag> PostTags { get; set; } = new List<PostTag>();
+    public ICollection<PostTag> PostTags { get; set; } = new List<PostTag>();
 }
