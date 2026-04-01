@@ -4,6 +4,7 @@ using DevOpsAiHub.Application.Features.App.Follows.Services;
 using DevOpsAiHub.Application.Features.App.Likes.Services;
 using DevOpsAiHub.Application.Features.App.Pipelines.Services;
 using DevOpsAiHub.Application.Features.App.Posts.Services;
+using DevOpsAiHub.Application.Features.App.Reports.Services;
 using DevOpsAiHub.Application.Features.App.Tags.Services;
 using DevOpsAiHub.Application.Features.Auth.Services;
 using DevOpsAiHub.Application.Features.Users.Services;
@@ -24,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<ICommentAppService, CommentAppService>();
         services.AddScoped<ILikeAppService, LikeAppService>();
         services.AddScoped<IBookmarkAppService, BookmarkAppService>();
+        services.AddScoped<IReportAppService, ReportAppService>();
 
         return services;
     }
