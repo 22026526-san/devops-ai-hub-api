@@ -1,4 +1,4 @@
-﻿using DevOpsAiHub.Application.Features.Follows.Services;
+﻿using DevOpsAiHub.Application.Features.App.Follows.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

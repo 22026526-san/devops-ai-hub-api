@@ -1,5 +1,5 @@
 ﻿using DevOpsAiHub.Application.Features.App.Pipelines.DTOs;
-using DevOpsAiHub.Application.Features.Pipelines.Services;
+using DevOpsAiHub.Application.Features.App.Pipelines.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
