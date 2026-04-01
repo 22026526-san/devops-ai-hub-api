@@ -9,6 +9,8 @@ public class Comment : BaseEntity
     public Guid AuthorId { get; set; }
     public Guid? ParentCommentId { get; set; }
     public string Content { get; set; } = null!;
+    public string? ImgUrl { get; set; }
+    public string? ImgPublicId { get; set; }
     public string Status { get; set; } = null!;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }

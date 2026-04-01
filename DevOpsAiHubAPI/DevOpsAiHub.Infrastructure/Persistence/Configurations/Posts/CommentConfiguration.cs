@@ -17,6 +17,8 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
         builder.Property(x => x.AuthorId).HasColumnName("author_id").HasColumnType("char(36)").IsRequired();
         builder.Property(x => x.ParentCommentId).HasColumnName("parent_comment_id").HasColumnType("char(36)");
         builder.Property(x => x.Content).HasColumnName("content").HasColumnType("text").IsRequired();
+        builder.Property(x => x.ImgUrl).HasColumnName("img_url").HasMaxLength(500);
+        builder.Property(x => x.ImgPublicId).HasColumnName("img_public_id").HasMaxLength(255);
         builder.Property(x => x.Status).HasColumnName("status").HasMaxLength(20).IsRequired();
         builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("datetime").IsRequired();
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime").IsRequired();

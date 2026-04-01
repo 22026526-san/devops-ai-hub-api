@@ -1,5 +1,6 @@
 ﻿using DevOpsAiHub.Application.Features.App.Tags.Services;
 using DevOpsAiHub.Application.Features.Auth.Services;
+using DevOpsAiHub.Application.Features.Comments.Services;
 using DevOpsAiHub.Application.Features.Follows.Services;
 using DevOpsAiHub.Application.Features.Pipelines.Services;
 using DevOpsAiHub.Application.Features.Posts.Services;
@@ -18,6 +19,7 @@ public static class DependencyInjection
         services.AddScoped<IFollowAppService, FollowAppService>();
         services.AddScoped<IPostAppService, PostAppService>();
         services.AddScoped<IPipelineAppService, PipelineAppService>();
+        services.AddScoped<ICommentAppService, CommentAppService>();
 
         return services;
     }
