@@ -1,4 +1,4 @@
-﻿namespace DevOpsAiHub.Application.Features.Posts.DTOs;
+﻿namespace DevOpsAiHub.Application.Features.App.Posts.DTOs;
 
 public class CreatePipelinePostRequestDto
 {

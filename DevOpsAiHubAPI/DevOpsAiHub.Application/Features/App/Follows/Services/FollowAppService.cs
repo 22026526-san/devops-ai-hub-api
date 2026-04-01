@@ -7,7 +7,7 @@ using DevOpsAiHub.Application.Features.App.Follows.DTOs;
 using DevOpsAiHub.Domain.Entities.Users;
 using DevOpsAiHub.Domain.Enums;
 
-namespace DevOpsAiHub.Application.Features.Follows.Services;
+namespace DevOpsAiHub.Application.Features.App.Follows.Services;
 
 public class FollowAppService : IFollowAppService
 {

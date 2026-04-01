@@ -1,6 +1,6 @@
 ﻿using DevOpsAiHub.Application.Features.App.Follows.DTOs;
 
-namespace DevOpsAiHub.Application.Features.Follows.Services;
+namespace DevOpsAiHub.Application.Features.App.Follows.Services;
 
 public interface IFollowAppService
 {

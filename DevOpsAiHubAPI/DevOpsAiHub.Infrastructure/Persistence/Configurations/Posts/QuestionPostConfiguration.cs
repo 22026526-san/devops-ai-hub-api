@@ -12,10 +12,33 @@ public class QuestionPostConfiguration : IEntityTypeConfiguration<QuestionPost>
 
         builder.HasKey(x => x.PostId);
 
-        builder.Property(x => x.PostId).HasColumnName("post_id").HasColumnType("char(36)").IsRequired();
-        builder.Property(x => x.Content).HasColumnName("content").HasColumnType("longtext").IsRequired();
-        builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("datetime").IsRequired();
-        builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime").IsRequired();
+        builder.Property(x => x.PostId)
+            .HasColumnName("post_id")
+            .HasColumnType("char(36)")
+            .IsRequired();
+
+        builder.Property(x => x.Content)
+            .HasColumnName("content")
+            .HasColumnType("longtext")
+            .IsRequired();
+
+        builder.Property(x => x.ImgUrl)
+            .HasColumnName("img_url")
+            .HasMaxLength(500);
+
+        builder.Property(x => x.ImgPublicId)
+            .HasColumnName("img_public_id")
+            .HasMaxLength(255);
+
+        builder.Property(x => x.CreatedAt)
+            .HasColumnName("created_at")
+            .HasColumnType("datetime")
+            .IsRequired();
+
+        builder.Property(x => x.UpdatedAt)
+            .HasColumnName("updated_at")
+            .HasColumnType("datetime")
+            .IsRequired();
 
         builder.HasOne(x => x.Post)
             .WithOne(x => x.QuestionPost)

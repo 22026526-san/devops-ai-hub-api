@@ -4,10 +4,9 @@ using DevOpsAiHub.Application.Common.Interfaces.Persistence;
 using DevOpsAiHub.Application.Common.Interfaces.Repositories;
 using DevOpsAiHub.Application.Common.Interfaces.Services;
 using DevOpsAiHub.Application.Features.App.Posts.DTOs;
-using DevOpsAiHub.Application.Features.Posts.DTOs;
 using DevOpsAiHub.Domain.Entities.Posts;
 
-namespace DevOpsAiHub.Application.Features.Posts.Services;
+namespace DevOpsAiHub.Application.Features.App.Posts.Services;
 
 public class PostAppService : IPostAppService
 {
@@ -16,19 +15,22 @@ public class PostAppService : IPostAppService
     private readonly IApplicationDbContext _context;
     private readonly IDateTimeService _dateTimeService;
     private readonly ISlugService _slugService;
+    private readonly ICloudinaryService _cloudinaryService;
 
     public PostAppService(
         ICurrentUserService currentUserService,
         IPostRepository postRepository,
         IApplicationDbContext context,
         IDateTimeService dateTimeService,
-        ISlugService slugService)
+        ISlugService slugService,
+        ICloudinaryService cloudinaryService)
     {
         _currentUserService = currentUserService;
         _postRepository = postRepository;
         _context = context;
         _dateTimeService = dateTimeService;
         _slugService = slugService;
+        _cloudinaryService = cloudinaryService;
     }
 
     public async Task<List<PostDto>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -77,11 +79,22 @@ public class PostAppService : IPostAppService
         if (string.IsNullOrWhiteSpace(request.Title))
             throw new BadRequestException("Title is required.");
 
-        if (string.IsNullOrWhiteSpace(request.Content))
-            throw new BadRequestException("Question content is required.");
+        if (string.IsNullOrWhiteSpace(request.Content) && request.Image is null)
+            throw new BadRequestException("Question content or image is required.");
 
         var now = _dateTimeService.UtcNow;
         var postId = Guid.NewGuid();
+
+        string? imageUrl = null;
+        string? imagePublicId = null;
+
+        if (request.Image is not null && request.Image.Length > 0)
+        {
+            await using var stream = request.Image.OpenReadStream();
+            var uploadResult = await _cloudinaryService.UploadImageAsync(stream, request.Image.FileName, cancellationToken);
+            imageUrl = uploadResult.Url;
+            imagePublicId = uploadResult.PublicId;
+        }
 
         var post = new Post
         {
@@ -104,7 +117,9 @@ public class PostAppService : IPostAppService
         var questionPost = new QuestionPost
         {
             PostId = postId,
-            Content = request.Content.Trim(),
+            Content = request.Content?.Trim() ?? string.Empty,
+            ImgUrl = imageUrl,
+            ImgPublicId = imagePublicId,
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -231,10 +246,28 @@ public class PostAppService : IPostAppService
             if (post.QuestionPost is null)
                 throw new BadRequestException("Question content not found.");
 
-            if (string.IsNullOrWhiteSpace(request.QuestionContent))
-                throw new BadRequestException("Question content is required.");
+            if (string.IsNullOrWhiteSpace(request.QuestionContent) && request.QuestionImage is null)
+                throw new BadRequestException("Question content or image is required.");
 
-            post.QuestionPost.Content = request.QuestionContent.Trim();
+            string? imageUrl = post.QuestionPost.ImgUrl;
+            string? imagePublicId = post.QuestionPost.ImgPublicId;
+
+            if (request.QuestionImage is not null && request.QuestionImage.Length > 0)
+            {
+                if (!string.IsNullOrWhiteSpace(post.QuestionPost.ImgPublicId))
+                {
+                    await _cloudinaryService.DeleteImageAsync(post.QuestionPost.ImgPublicId, cancellationToken);
+                }
+
+                await using var stream = request.QuestionImage.OpenReadStream();
+                var uploadResult = await _cloudinaryService.UploadImageAsync(stream, request.QuestionImage.FileName, cancellationToken);
+                imageUrl = uploadResult.Url;
+                imagePublicId = uploadResult.PublicId;
+            }
+
+            post.QuestionPost.Content = request.QuestionContent?.Trim() ?? string.Empty;
+            post.QuestionPost.ImgUrl = imageUrl;
+            post.QuestionPost.ImgPublicId = imagePublicId;
             post.QuestionPost.UpdatedAt = _dateTimeService.UtcNow;
         }
         else if (post.PostType == "Pipeline")
@@ -304,6 +337,18 @@ public class PostAppService : IPostAppService
         if (post.AuthorId != currentUserId.Value)
             throw new ForbiddenAccessException("You are not allowed to delete this post.");
 
+        if (post.PostType == "Question" && post.QuestionPost is not null)
+        {
+            if (!string.IsNullOrWhiteSpace(post.QuestionPost.ImgPublicId))
+            {
+                await _cloudinaryService.DeleteImageAsync(post.QuestionPost.ImgPublicId, cancellationToken);
+            }
+
+            post.QuestionPost.ImgUrl = null;
+            post.QuestionPost.ImgPublicId = null;
+            post.QuestionPost.UpdatedAt = _dateTimeService.UtcNow;
+        }
+
         post.Status = "Deleted";
         post.DeletedAt = _dateTimeService.UtcNow;
         post.UpdatedAt = _dateTimeService.UtcNow;
@@ -347,6 +392,7 @@ public class PostAppService : IPostAppService
             CreatedAt = post.CreatedAt,
             UpdatedAt = post.UpdatedAt,
             QuestionContent = post.QuestionPost?.Content,
+            QuestionImgUrl = post.QuestionPost?.ImgUrl,
             PipelineDescription = post.PipelinePost?.Description,
             Platform = post.PipelinePost?.Platform,
             PipelineFormat = post.PipelinePost?.PipelineFormat,

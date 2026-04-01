@@ -1,4 +1,6 @@
-﻿namespace DevOpsAiHub.Application.Features.Posts.DTOs;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace DevOpsAiHub.Application.Features.App.Posts.DTOs;
 
 public class CreateQuestionPostRequestDto
 {
@@ -6,4 +8,5 @@ public class CreateQuestionPostRequestDto
     public string? Summary { get; set; }
     public string Content { get; set; } = null!;
     public string Visibility { get; set; } = "Public";
+    public IFormFile? Image { get; set; }
 }

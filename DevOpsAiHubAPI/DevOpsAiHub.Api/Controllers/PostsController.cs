@@ -1,5 +1,5 @@
-﻿using DevOpsAiHub.Application.Features.Posts.DTOs;
-using DevOpsAiHub.Application.Features.Posts.Services;
+﻿using DevOpsAiHub.Application.Features.App.Posts.DTOs;
+using DevOpsAiHub.Application.Features.App.Posts.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,8 +34,9 @@ public class PostsController : ControllerBase
 
     [HttpPost("question")]
     [Authorize]
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> CreateQuestion(
-        [FromBody] CreateQuestionPostRequestDto request,
+        [FromForm] CreateQuestionPostRequestDto request,
         CancellationToken cancellationToken)
     {
         var result = await _postAppService.CreateQuestionPostAsync(request, cancellationToken);
@@ -54,9 +55,10 @@ public class PostsController : ControllerBase
 
     [HttpPut("{id:guid}")]
     [Authorize]
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> Update(
         Guid id,
-        [FromBody] UpdatePostRequestDto request,
+        [FromForm] UpdatePostRequestDto request,
         CancellationToken cancellationToken)
     {
         var result = await _postAppService.UpdatePostAsync(id, request, cancellationToken);

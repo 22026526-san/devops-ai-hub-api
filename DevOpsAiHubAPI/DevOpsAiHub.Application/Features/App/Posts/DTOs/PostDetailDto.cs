@@ -1,4 +1,4 @@
-﻿namespace DevOpsAiHub.Application.Features.Posts.DTOs;
+﻿namespace DevOpsAiHub.Application.Features.App.Posts.DTOs;
 
 public class PostDetailDto
 {
@@ -19,6 +19,7 @@ public class PostDetailDto
     public DateTime UpdatedAt { get; set; }
 
     public string? QuestionContent { get; set; }
+    public string? QuestionImgUrl { get; set; }
 
     public string? PipelineDescription { get; set; }
     public string? Platform { get; set; }

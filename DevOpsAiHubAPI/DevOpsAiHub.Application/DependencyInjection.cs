@@ -1,9 +1,9 @@
 ﻿using DevOpsAiHub.Application.Features.App.Tags.Services;
 using DevOpsAiHub.Application.Features.Auth.Services;
-using DevOpsAiHub.Application.Features.Comments.Services;
-using DevOpsAiHub.Application.Features.Follows.Services;
-using DevOpsAiHub.Application.Features.Pipelines.Services;
-using DevOpsAiHub.Application.Features.Posts.Services;
+using DevOpsAiHub.Application.Features.App.Comments.Services;
+using DevOpsAiHub.Application.Features.App.Follows.Services;
+using DevOpsAiHub.Application.Features.App.Pipelines.Services;
+using DevOpsAiHub.Application.Features.App.Posts.Services;
 using DevOpsAiHub.Application.Features.Users.Services;
 using Microsoft.Extensions.DependencyInjection;
 

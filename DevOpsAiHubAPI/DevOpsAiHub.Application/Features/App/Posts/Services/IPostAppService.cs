@@ -1,7 +1,6 @@
 ﻿using DevOpsAiHub.Application.Features.App.Posts.DTOs;
-using DevOpsAiHub.Application.Features.Posts.DTOs;
 
-namespace DevOpsAiHub.Application.Features.Posts.Services;
+namespace DevOpsAiHub.Application.Features.App.Posts.Services;
 
 public interface IPostAppService
 {

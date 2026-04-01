@@ -4,10 +4,9 @@ using DevOpsAiHub.Application.Common.Interfaces.Persistence;
 using DevOpsAiHub.Application.Common.Interfaces.Repositories;
 using DevOpsAiHub.Application.Common.Interfaces.Services;
 using DevOpsAiHub.Application.Features.App.Comments.DTOs;
-using DevOpsAiHub.Application.Features.App.Comments.Services;
 using DevOpsAiHub.Domain.Entities.Posts;
 
-namespace DevOpsAiHub.Application.Features.Comments.Services;
+namespace DevOpsAiHub.Application.Features.App.Comments.Services;
 
 public class CommentAppService : ICommentAppService
 {

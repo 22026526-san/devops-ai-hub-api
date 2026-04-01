@@ -1,6 +1,6 @@
 ﻿using DevOpsAiHub.Application.Features.App.Pipelines.DTOs;
 
-namespace DevOpsAiHub.Application.Features.Pipelines.Services;
+namespace DevOpsAiHub.Application.Features.App.Pipelines.Services;
 
 public interface IPipelineAppService
 {

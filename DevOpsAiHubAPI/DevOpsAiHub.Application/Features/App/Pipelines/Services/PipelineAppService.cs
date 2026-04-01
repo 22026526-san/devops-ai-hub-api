@@ -6,7 +6,7 @@ using DevOpsAiHub.Application.Common.Interfaces.Services;
 using DevOpsAiHub.Application.Features.App.Pipelines.DTOs;
 using DevOpsAiHub.Domain.Entities.Posts;
 
-namespace DevOpsAiHub.Application.Features.Pipelines.Services;
+namespace DevOpsAiHub.Application.Features.App.Pipelines.Services;
 
 public class PipelineAppService : IPipelineAppService
 {
