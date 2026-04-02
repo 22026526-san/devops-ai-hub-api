@@ -14,4 +14,6 @@ public interface IUserAppService
     Task RemoveAvatarAsync(CancellationToken cancellationToken = default);
     Task UpdateUserRoleAsync(Guid userId, UpdateUserRoleRequestDto request, CancellationToken cancellationToken = default);
     Task UpdateUserStatusAsync(Guid userId, UpdateUserStatusRequestDto request, CancellationToken cancellationToken = default);
+    Task UpdateUserOtpRequestAsync(UpdateUserOtpRequestDto request, CancellationToken cancellationToken = default);
+    Task VerifyUpdateUserOtpAsync(VerifyUpdateUserOtpDto request, CancellationToken cancellationToken = default);
 }

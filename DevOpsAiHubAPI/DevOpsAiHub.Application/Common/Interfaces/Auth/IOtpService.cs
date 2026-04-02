@@ -31,4 +31,13 @@ public interface IOtpService
         CancellationToken cancellationToken = default);
 
     Task RemoveForgotPasswordOtpAsync(string email, CancellationToken cancellationToken = default);
+    Task StoreUpdateUserOtpAsync(string oldEmail, string otp, CancellationToken cancellationToken = default);
+    Task<(bool Success, string Message)> VerifyUpdateUserOtpAsync(
+        string oldEmail,
+        string otp,
+        CancellationToken cancellationToken = default);
+
+    Task RemoveUpdateUserOtpAsync(
+        string oldEmail,
+        CancellationToken cancellationToken = default);
 }

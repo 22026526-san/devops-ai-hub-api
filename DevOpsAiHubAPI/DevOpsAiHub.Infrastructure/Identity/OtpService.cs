@@ -6,7 +6,7 @@ namespace DevOpsAiHub.Infrastructure.Identity;
 public class OtpService : IOtpService
 {
     private readonly IMemoryCache _memoryCache;
-    private static readonly TimeSpan OtpLifetime = TimeSpan.FromMinutes(5);
+    private static readonly TimeSpan OtpLifetime = TimeSpan.FromMinutes(2);
 
     public OtpService(IMemoryCache memoryCache)
     {
@@ -109,8 +109,49 @@ public class OtpService : IOtpService
         return Task.CompletedTask;
     }
 
+    public Task StoreUpdateUserOtpAsync(
+    string oldEmail,
+    string otp,
+    CancellationToken cancellationToken = default)
+    {
+        var key = GetUpdateUserKey(oldEmail);
+
+        var payload = new UpdateUserOtpCacheModel
+        {
+            Email = oldEmail,
+            Otp = otp
+        };
+
+        _memoryCache.Set(key, payload, OtpLifetime);
+
+        return Task.CompletedTask;
+    }
+
+    public Task<(bool Success, string Message)> VerifyUpdateUserOtpAsync(
+        string oldEmail,
+        string otp,
+        CancellationToken cancellationToken = default)
+    {
+        var key = GetUpdateUserKey(oldEmail);
+
+        if (!_memoryCache.TryGetValue<UpdateUserOtpCacheModel>(key, out var payload) || payload is null)
+            return Task.FromResult((false, "OTP expired or not found."));
+
+        if (payload.Otp != otp)
+            return Task.FromResult((false, "Invalid OTP."));
+
+        return Task.FromResult((true, "OTP verified successfully."));
+    }
+
+    public Task RemoveUpdateUserOtpAsync(string oldEmail, CancellationToken cancellationToken = default)
+    {
+        _memoryCache.Remove(GetUpdateUserKey(oldEmail));
+        return Task.CompletedTask;
+    }
+
     private static string GetRegisterKey(string email) => $"register_otp:{email}";
     private static string GetForgotPasswordKey(string email) => $"forgot_password_otp:{email}";
+    private static string GetUpdateUserKey(string email) => $"update_user_otp:{email}";
 
     private sealed class RegisterOtpCacheModel
     {
@@ -121,6 +162,12 @@ public class OtpService : IOtpService
     }
 
     private sealed class ForgotPasswordOtpCacheModel
+    {
+        public string Email { get; set; } = null!;
+        public string Otp { get; set; } = null!;
+    }
+
+    private sealed class UpdateUserOtpCacheModel
     {
         public string Email { get; set; } = null!;
         public string Otp { get; set; } = null!;

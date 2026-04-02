@@ -35,7 +35,7 @@ public class EmailService : IEmailService
                     <h2>DevOpsAiHub OTP Verification</h2>
                     <p>Your OTP code is:</p>
                     <h1 style='letter-spacing: 4px; color: #2563eb;'>{otp}</h1>
-                    <p>This code will expire in 5 minutes.</p>
+                    <p>This code will expire in 2 minutes.</p>
                     <p>If you did not request this, please ignore this email.</p>
                 </div>"
         };

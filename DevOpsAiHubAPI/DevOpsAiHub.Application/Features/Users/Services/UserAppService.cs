@@ -18,6 +18,9 @@ public class UserAppService : IUserAppService
     private readonly ICloudinaryService _cloudinaryService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IApplicationDbContext _context;
+    private readonly IEmailService _emailService;
+    private readonly IOtpService _otpService;
+    private readonly IPasswordHasherService _passwordHasherService;
 
     public UserAppService(
         ICurrentUserService currentUserService,
@@ -26,7 +29,10 @@ public class UserAppService : IUserAppService
         IUserFollowRepository userFollowRepository,
         ICloudinaryService cloudinaryService,
         IDateTimeService dateTimeService,
-        IApplicationDbContext context)
+        IApplicationDbContext context,
+        IEmailService emailService,
+        IPasswordHasherService passwordHasherService,
+        IOtpService otpService)
     {
         _currentUserService = currentUserService;
         _userRepository = userRepository;
@@ -35,6 +41,9 @@ public class UserAppService : IUserAppService
         _cloudinaryService = cloudinaryService;
         _dateTimeService = dateTimeService;
         _context = context;
+        _emailService = emailService;
+        _otpService = otpService;
+        _passwordHasherService = passwordHasherService;
     }
 
     public async Task UpdateUserRoleAsync(Guid userId, UpdateUserRoleRequestDto request, CancellationToken cancellationToken = default)
@@ -264,5 +273,82 @@ public class UserAppService : IUserAppService
             GithubUrl = profile?.GithubUrl,
             FollowerCount = followerCount
         };
+    }
+    public async Task VerifyUpdateUserOtpAsync(VerifyUpdateUserOtpDto request, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = _currentUserService.UserId;
+        if (currentUserId is null)
+            throw new UnauthorizedException("User is not authenticated.");
+
+        var user = await _userRepository.GetByIdAsync(currentUserId.Value, cancellationToken);
+        if (user is null)
+            throw new NotFoundException("User not found.");
+
+        var oldEmail = user.Email;
+
+        if (string.IsNullOrWhiteSpace(request.Otp))
+            throw new BadRequestException("OTP is required.");
+
+        if (string.IsNullOrWhiteSpace(request.Email))
+            throw new BadRequestException("Email is required.");
+
+        if (string.IsNullOrWhiteSpace(request.UserName))
+            throw new BadRequestException("UserName is required.");
+
+        if (string.IsNullOrWhiteSpace(request.Password))
+            throw new BadRequestException("Password is required.");
+
+        var verifyOtpResult = await _otpService.VerifyUpdateUserOtpAsync(oldEmail, request.Otp.Trim(), cancellationToken);
+        if (!verifyOtpResult.Success)
+            throw new BadRequestException(verifyOtpResult.Message);
+
+        var newEmail = request.Email.Trim();
+        var newUserName = request.UserName.Trim();
+
+        if (!string.Equals(user.Email, newEmail, StringComparison.OrdinalIgnoreCase))
+        {
+            var emailExists = await _userRepository.ExistsByEmailAsync(newEmail, cancellationToken);
+            if (emailExists)
+                throw new BadRequestException("Email already exists.");
+        }
+
+        if (!string.Equals(user.Username, newUserName, StringComparison.OrdinalIgnoreCase))
+        {
+            var usernameExists = await _userRepository.ExistsByUsernameAsync(newUserName, cancellationToken);
+            if (usernameExists)
+                throw new BadRequestException("UserName already exists.");
+        }
+
+        user.Email = newEmail;
+        user.Username = newUserName;
+        user.PasswordHash = _passwordHasherService.HashPassword(request.Password.Trim());
+        user.UpdatedAt = _dateTimeService.UtcNow;
+
+        _userRepository.Update(user);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        await _otpService.RemoveUpdateUserOtpAsync(oldEmail, cancellationToken);
+    }
+    public async Task UpdateUserOtpRequestAsync(UpdateUserOtpRequestDto request, CancellationToken cancellationToken = default)
+    {
+        var currentUserId = _currentUserService.UserId;
+        if (currentUserId is null)
+            throw new UnauthorizedException("User is not authenticated.");
+
+        var user = await _userRepository.GetByIdAsync(currentUserId.Value, cancellationToken);
+        if (user is null)
+            throw new NotFoundException("User not found.");
+
+        if (string.IsNullOrWhiteSpace(request.OldEmail))
+            throw new BadRequestException("Old email is required.");
+
+        if (!string.Equals(user.Email, request.OldEmail.Trim(), StringComparison.OrdinalIgnoreCase))
+            throw new BadRequestException("Old email does not match current email.");
+
+        var otp = new Random().Next(100000, 999999).ToString();
+
+        await _otpService.StoreUpdateUserOtpAsync(user.Email, otp, cancellationToken);
+
+        await _emailService.SendOtpAsync(user.Email,otp, "OTP for update Users", cancellationToken);
     }
 }

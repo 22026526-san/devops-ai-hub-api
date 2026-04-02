@@ -94,4 +94,23 @@ public class UsersController : ControllerBase
         await _userAppService.UpdateUserStatusAsync(userId, request, cancellationToken);
         return Ok(new { message = "User status updated successfully." });
     }
+    [HttpPost("request-update-user-otp")]
+    [Authorize]
+    public async Task<IActionResult> RequestUpdateUserOtp(
+    [FromBody] UpdateUserOtpRequestDto request,
+    CancellationToken cancellationToken)
+    {
+        await _userAppService.UpdateUserOtpRequestAsync(request, cancellationToken);
+        return Ok(new { message = "OTP has been sent to your current email." });
+    }
+
+    [HttpPost("verify-update-user-otp")]
+    [Authorize]
+    public async Task<IActionResult> VerifyUpdateUserOtp(
+        [FromBody] VerifyUpdateUserOtpDto request,
+        CancellationToken cancellationToken)
+    {
+        await _userAppService.VerifyUpdateUserOtpAsync(request, cancellationToken);
+        return Ok(new { message = "User updated successfully." });
+    }
 }
