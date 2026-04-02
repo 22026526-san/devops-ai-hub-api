@@ -18,9 +18,11 @@ public class PostsController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+    [FromQuery] GetPostsQueryDto request,
+    CancellationToken cancellationToken)
     {
-        var result = await _postAppService.GetAllAsync(cancellationToken);
+        var result = await _postAppService.GetAllAsync(request, cancellationToken);
         return Ok(result);
     }
 

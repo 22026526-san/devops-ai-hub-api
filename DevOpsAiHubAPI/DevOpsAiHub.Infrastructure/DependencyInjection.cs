@@ -46,6 +46,7 @@ public static class DependencyInjection
         services.AddScoped<ILikeRepository, LikeRepository>();
         services.AddScoped<IBookmarkRepository, BookmarkRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
+        services.AddScoped<IPostTagRepository, PostTagRepository>();
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IPasswordHasherService, PasswordHasherService>();

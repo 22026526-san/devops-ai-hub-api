@@ -3,8 +3,10 @@ using DevOpsAiHub.Application.Common.Interfaces.Auth;
 using DevOpsAiHub.Application.Common.Interfaces.Persistence;
 using DevOpsAiHub.Application.Common.Interfaces.Repositories;
 using DevOpsAiHub.Application.Common.Interfaces.Services;
+using DevOpsAiHub.Application.Common.Models;
 using DevOpsAiHub.Application.Features.App.Posts.DTOs;
 using DevOpsAiHub.Domain.Entities.Posts;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevOpsAiHub.Application.Features.App.Posts.Services;
 
@@ -16,14 +18,18 @@ public class PostAppService : IPostAppService
     private readonly IDateTimeService _dateTimeService;
     private readonly ISlugService _slugService;
     private readonly ICloudinaryService _cloudinaryService;
+    private readonly ITagRepository _tagRepository;
+    private readonly IPostTagRepository _postTagRepository;
 
     public PostAppService(
-        ICurrentUserService currentUserService,
-        IPostRepository postRepository,
-        IApplicationDbContext context,
-        IDateTimeService dateTimeService,
-        ISlugService slugService,
-        ICloudinaryService cloudinaryService)
+    ICurrentUserService currentUserService,
+    IPostRepository postRepository,
+    IApplicationDbContext context,
+    IDateTimeService dateTimeService,
+    ISlugService slugService,
+    ICloudinaryService cloudinaryService,
+    ITagRepository tagRepository,
+    IPostTagRepository postTagRepository)
     {
         _currentUserService = currentUserService;
         _postRepository = postRepository;
@@ -31,29 +37,67 @@ public class PostAppService : IPostAppService
         _dateTimeService = dateTimeService;
         _slugService = slugService;
         _cloudinaryService = cloudinaryService;
+        _tagRepository = tagRepository;
+        _postTagRepository = postTagRepository;
     }
-
-    public async Task<List<PostDto>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<PagedResult<PostDto>> GetAllAsync(GetPostsQueryDto request, CancellationToken cancellationToken = default)
     {
-        var posts = await _postRepository.GetAllAsync(cancellationToken);
+        var page = request.Page <= 0 ? 1 : request.Page;
+        var pageSize = request.PageSize <= 0 ? 20 : request.PageSize;
 
-        return posts.Select(x => new PostDto
+        var query = _postRepository.Query();
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
         {
-            Id = x.Id,
-            AuthorId = x.AuthorId,
-            AuthorUsername = x.Author.Username,
-            PostType = x.PostType,
-            Title = x.Title,
-            Slug = x.Slug,
-            Summary = x.Summary,
-            Status = x.Status,
-            Visibility = x.Visibility,
-            ViewCount = x.ViewCount,
-            LikeCount = x.LikeCount,
-            CommentCount = x.CommentCount,
-            BookmarkCount = x.BookmarkCount,
-            CreatedAt = x.CreatedAt
-        }).ToList();
+            var keyword = request.Search.Trim().ToLower();
+            query = query.Where(x => x.Title.ToLower().Contains(keyword));
+        }
+
+        if (request.TagIds.Any())
+        {
+            query = query.Where(x => x.PostTags.Any(pt => request.TagIds.Contains(pt.TagId)));
+        }
+
+        if (request.Year.HasValue)
+        {
+            query = query.Where(x => x.CreatedAt.Year == request.Year.Value);
+        }
+
+        if (request.Month.HasValue)
+        {
+            query = query.Where(x => x.CreatedAt.Month == request.Month.Value);
+        }
+
+        if (request.Day.HasValue)
+        {
+            query = query.Where(x => x.CreatedAt.Day == request.Day.Value);
+        }
+
+        query = request.SortBy switch
+        {
+            "likes_desc" => query.OrderByDescending(x => x.LikeCount).ThenByDescending(x => x.CreatedAt),
+            "views_desc" => query.OrderByDescending(x => x.ViewCount).ThenByDescending(x => x.CreatedAt),
+            _ => query.OrderByDescending(x => x.CreatedAt)
+        };
+
+        var totalItems = await query.CountAsync(cancellationToken);
+
+        var posts = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        var items = posts.Select(MapToPostDto).ToList();
+
+        return new PagedResult<PostDto>
+        {
+            Items = items,
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
+            HasNextPage = page * pageSize < totalItems
+        };
     }
 
     public async Task<PostDetailDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -124,8 +168,37 @@ public class PostAppService : IPostAppService
             UpdatedAt = now
         };
 
+        var tagEntities = new List<Tag>();
+
+        if (request.TagIds.Any())
+        {
+            tagEntities = await _tagRepository.GetByIdsAsync(request.TagIds.Distinct().ToList(), cancellationToken);
+
+            if (tagEntities.Count != request.TagIds.Distinct().Count())
+                throw new BadRequestException("One or more tags are invalid.");
+        }
+
         await _postRepository.AddAsync(post, cancellationToken);
         await _context.QuestionPosts.AddAsync(questionPost, cancellationToken);
+
+        if (tagEntities.Any())
+        {
+            var postTags = tagEntities.Select(tag => new PostTag
+            {
+                Id = Guid.NewGuid(),
+                PostId = postId,
+                TagId = tag.Id,
+                CreatedAt = now
+            }).ToList();
+
+            await _postTagRepository.AddRangeAsync(postTags, cancellationToken);
+
+            foreach (var tag in tagEntities)
+            {
+                tag.PostCount += 1;
+                _tagRepository.Update(tag);
+            }
+        }
         await _context.SaveChangesAsync(cancellationToken);
 
         var createdPost = await _postRepository.GetByIdAsync(postId, cancellationToken)
@@ -209,9 +282,39 @@ public class PostAppService : IPostAppService
             CreatedAt = now
         };
 
+        var tagEntities = new List<Tag>();
+
+        if (request.TagIds.Any())
+        {
+            tagEntities = await _tagRepository.GetByIdsAsync(request.TagIds.Distinct().ToList(), cancellationToken);
+
+            if (tagEntities.Count != request.TagIds.Distinct().Count())
+                throw new BadRequestException("One or more tags are invalid.");
+        }
+
         await _postRepository.AddAsync(post, cancellationToken);
         await _context.PipelinePosts.AddAsync(pipelinePost, cancellationToken);
         await _context.PipelineVersions.AddAsync(version, cancellationToken);
+
+        if (tagEntities.Any())
+        {
+            var postTags = tagEntities.Select(tag => new PostTag
+            {
+                Id = Guid.NewGuid(),
+                PostId = postId,
+                TagId = tag.Id,
+                CreatedAt = now
+            }).ToList();
+
+            await _postTagRepository.AddRangeAsync(postTags, cancellationToken);
+
+            foreach (var tag in tagEntities)
+            {
+                tag.PostCount += 1;
+                _tagRepository.Update(tag);
+            }
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
 
         var createdPost = await _postRepository.GetByIdAsync(postId, cancellationToken)
@@ -316,6 +419,53 @@ public class PostAppService : IPostAppService
         }
 
         _postRepository.Update(post);
+
+        var existingPostTags = await _postTagRepository.GetByPostIdAsync(post.Id, cancellationToken);
+        var existingTagIds = existingPostTags.Select(x => x.TagId).ToHashSet();
+        var newTagIds = request.TagIds.Distinct().ToHashSet();
+
+        var removedTagIds = existingTagIds.Except(newTagIds).ToList();
+        var addedTagIds = newTagIds.Except(existingTagIds).ToList();
+
+        if (removedTagIds.Any())
+        {
+            var removedPostTags = existingPostTags.Where(x => removedTagIds.Contains(x.TagId)).ToList();
+            _postTagRepository.RemoveRange(removedPostTags);
+
+            var removedTags = await _tagRepository.GetByIdsAsync(removedTagIds, cancellationToken);
+            foreach (var tag in removedTags)
+            {
+                if (tag.PostCount > 0)
+                    tag.PostCount -= 1;
+
+                _tagRepository.Update(tag);
+            }
+        }
+
+        if (addedTagIds.Any())
+        {
+            var addedTags = await _tagRepository.GetByIdsAsync(addedTagIds, cancellationToken);
+
+            if (addedTags.Count != addedTagIds.Count)
+                throw new BadRequestException("One or more tags are invalid.");
+
+            var postTagsToAdd = addedTags.Select(tag => new PostTag
+            {
+                Id = Guid.NewGuid(),
+                PostId = post.Id,
+                TagId = tag.Id,
+                CreatedAt = _dateTimeService.UtcNow
+            }).ToList();
+
+            await _postTagRepository.AddRangeAsync(postTagsToAdd, cancellationToken);
+
+            foreach (var tag in addedTags)
+            {
+                tag.PostCount += 1;
+                _tagRepository.Update(tag);
+            }
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
 
         var updatedPost = await _postRepository.GetByIdAsync(id, cancellationToken)
@@ -371,7 +521,33 @@ public class PostAppService : IPostAppService
 
         return slug;
     }
-
+    private static PostDto MapToPostDto(Post post)
+    {
+        return new PostDto
+        {
+            Id = post.Id,
+            AuthorId = post.AuthorId,
+            AuthorUsername = post.Author.Username,
+            PostType = post.PostType,
+            Title = post.Title,
+            Slug = post.Slug,
+            Summary = post.Summary,
+            Status = post.Status,
+            Visibility = post.Visibility,
+            ViewCount = post.ViewCount,
+            LikeCount = post.LikeCount,
+            CommentCount = post.CommentCount,
+            BookmarkCount = post.BookmarkCount,
+            CreatedAt = post.CreatedAt,
+            Tags = post.PostTags
+                .Select(pt => new PostTagDto
+                {
+                    Id = pt.Tag.Id,
+                    Name = pt.Tag.Name
+                })
+                .ToList()
+        };
+    }
     private static PostDetailDto MapToDetailDto(Post post)
     {
         return new PostDetailDto
@@ -405,7 +581,14 @@ public class PostAppService : IPostAppService
             SecurityScanEnabled = post.PipelinePost?.SecurityScanEnabled,
             ForkCount = post.PipelinePost?.ForkCount,
             VersionCount = post.PipelinePost?.VersionCount,
-            CurrentPipelineContent = post.PipelinePost?.CurrentVersion?.Content
+            CurrentPipelineContent = post.PipelinePost?.CurrentVersion?.Content,
+            Tags = post.PostTags
+            .Select(pt => new PostTagDto
+            {
+                Id = pt.Tag.Id,
+                Name = pt.Tag.Name
+            })
+            .ToList()
         };
     }
 }

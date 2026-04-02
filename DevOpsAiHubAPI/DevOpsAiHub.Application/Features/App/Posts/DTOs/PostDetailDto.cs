@@ -34,4 +34,5 @@ public class PostDetailDto
     public int? ForkCount { get; set; }
     public int? VersionCount { get; set; }
     public string? CurrentPipelineContent { get; set; }
+    public List<PostTagDto> Tags { get; set; } = new();
 }

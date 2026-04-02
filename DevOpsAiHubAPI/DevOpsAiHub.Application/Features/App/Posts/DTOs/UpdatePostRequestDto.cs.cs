@@ -23,4 +23,5 @@ public class UpdatePostRequestDto
     public bool? SecurityScanEnabled { get; set; }
     public string? PipelineContent { get; set; }
     public string? Changelog { get; set; }
+    public List<Guid> TagIds { get; set; } = new();
 }

@@ -14,13 +14,21 @@ public class PostRepository : IPostRepository
         _context = context;
     }
 
-    public async Task<List<Post>> GetAllAsync(CancellationToken cancellationToken = default)
+    public IQueryable<Post> Query()
     {
-        return await _context.Posts
+        return _context.Posts
             .Include(x => x.Author)
             .Include(x => x.QuestionPost)
             .Include(x => x.PipelinePost)
-            .Where(x => x.DeletedAt == null && x.Status == "Published")
+                .ThenInclude(x => x!.CurrentVersion)
+            .Include(x => x.PostTags)
+                .ThenInclude(x => x.Tag)
+            .Where(x => x.DeletedAt == null && x.Status == "Published");
+    }
+
+    public async Task<List<Post>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await Query()
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync(cancellationToken);
     }
@@ -32,6 +40,8 @@ public class PostRepository : IPostRepository
             .Include(x => x.QuestionPost)
             .Include(x => x.PipelinePost)
                 .ThenInclude(x => x!.CurrentVersion)
+            .Include(x => x.PostTags)
+                .ThenInclude(x => x.Tag)
             .FirstOrDefaultAsync(x => x.Id == id && x.DeletedAt == null, cancellationToken);
     }
 
@@ -42,6 +52,8 @@ public class PostRepository : IPostRepository
             .Include(x => x.QuestionPost)
             .Include(x => x.PipelinePost)
                 .ThenInclude(x => x!.CurrentVersion)
+            .Include(x => x.PostTags)
+                .ThenInclude(x => x.Tag)
             .FirstOrDefaultAsync(x => x.Slug == slug && x.DeletedAt == null, cancellationToken);
     }
 

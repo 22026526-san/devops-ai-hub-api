@@ -21,6 +21,13 @@ public class TagRepository : ITagRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<Tag>> GetByIdsAsync(List<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        return await _context.Tags
+            .Where(x => ids.Contains(x.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Tag?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Tags

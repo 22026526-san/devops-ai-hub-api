@@ -9,5 +9,6 @@ public interface ITagRepository
     Task<Tag?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
     Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default);
     Task AddAsync(Tag tag, CancellationToken cancellationToken = default);
+    Task<List<Tag>> GetByIdsAsync(List<Guid> ids, CancellationToken cancellationToken = default);
     void Update(Tag tag);
 }

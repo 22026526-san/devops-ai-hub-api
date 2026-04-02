@@ -9,4 +9,5 @@ public class CreateQuestionPostRequestDto
     public string Content { get; set; } = null!;
     public string Visibility { get; set; } = "Public";
     public IFormFile? Image { get; set; }
+    public List<Guid> TagIds { get; set; } = new();
 }
