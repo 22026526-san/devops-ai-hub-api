@@ -100,7 +100,7 @@ public class PostAppService : IPostAppService
         };
     }
 
-    public async Task<PostDetailDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<PostDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var post = await _postRepository.GetByIdAsync(id, cancellationToken);
         if (post is null)
@@ -111,10 +111,10 @@ public class PostAppService : IPostAppService
         _postRepository.Update(post);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return MapToDetailDto(post);
+        return MapToPostDto(post);
     }
 
-    public async Task<PostDetailDto> CreateQuestionPostAsync(CreateQuestionPostRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<PostDto> CreateQuestionPostAsync(CreateQuestionPostRequestDto request, CancellationToken cancellationToken = default)
     {
         var currentUserId = _currentUserService.UserId;
         if (currentUserId is null)
@@ -204,10 +204,10 @@ public class PostAppService : IPostAppService
         var createdPost = await _postRepository.GetByIdAsync(postId, cancellationToken)
             ?? throw new NotFoundException("Created post not found.");
 
-        return MapToDetailDto(createdPost);
+        return MapToPostDto(createdPost);
     }
 
-    public async Task<PostDetailDto> CreatePipelinePostAsync(CreatePipelinePostRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<PostDto> CreatePipelinePostAsync(CreatePipelinePostRequestDto request, CancellationToken cancellationToken = default)
     {
         var currentUserId = _currentUserService.UserId;
         if (currentUserId is null)
@@ -320,10 +320,10 @@ public class PostAppService : IPostAppService
         var createdPost = await _postRepository.GetByIdAsync(postId, cancellationToken)
             ?? throw new NotFoundException("Created pipeline post not found.");
 
-        return MapToDetailDto(createdPost);
+        return MapToPostDto(createdPost);
     }
 
-    public async Task<PostDetailDto> UpdatePostAsync(Guid id, UpdatePostRequestDto request, CancellationToken cancellationToken = default)
+    public async Task<PostDto> UpdatePostAsync(Guid id, UpdatePostRequestDto request, CancellationToken cancellationToken = default)
     {
         var currentUserId = _currentUserService.UserId;
         if (currentUserId is null)
@@ -471,7 +471,7 @@ public class PostAppService : IPostAppService
         var updatedPost = await _postRepository.GetByIdAsync(id, cancellationToken)
             ?? throw new NotFoundException("Updated post not found.");
 
-        return MapToDetailDto(updatedPost);
+        return MapToPostDto(updatedPost);
     }
 
     public async Task DeletePostAsync(Guid id, CancellationToken cancellationToken = default)
@@ -521,8 +521,39 @@ public class PostAppService : IPostAppService
 
         return slug;
     }
+
     private static PostDto MapToPostDto(Post post)
     {
+        object? detail = null;
+
+        if (post.PostType == "Question" && post.QuestionPost is not null)
+        {
+            detail = new QuestionPostDetailDto
+            {
+                Content = post.QuestionPost.Content,
+                ImgUrl = post.QuestionPost.ImgUrl
+            };
+        }
+        else if (post.PostType == "Pipeline" && post.PipelinePost is not null)
+        {
+            detail = new PipelinePostDetailDto
+            {
+                Description = post.PipelinePost.Description,
+                Platform = post.PipelinePost.Platform,
+                PipelineFormat = post.PipelinePost.PipelineFormat,
+                ProjectType = post.PipelinePost.ProjectType,
+                EnvironmentType = post.PipelinePost.EnvironmentType,
+                DeploymentTarget = post.PipelinePost.DeploymentTarget,
+                CiEnabled = post.PipelinePost.CiEnabled,
+                CdEnabled = post.PipelinePost.CdEnabled,
+                TestEnabled = post.PipelinePost.TestEnabled,
+                SecurityScanEnabled = post.PipelinePost.SecurityScanEnabled,
+                ForkCount = post.PipelinePost.ForkCount,
+                VersionCount = post.PipelinePost.VersionCount,
+                PipelineContent = post.PipelinePost.CurrentVersion?.Content
+            };
+        }
+
         return new PostDto
         {
             Id = post.Id,
@@ -539,56 +570,15 @@ public class PostAppService : IPostAppService
             CommentCount = post.CommentCount,
             BookmarkCount = post.BookmarkCount,
             CreatedAt = post.CreatedAt,
+            UpdatedAt = post.UpdatedAt,
             Tags = post.PostTags
                 .Select(pt => new PostTagDto
                 {
                     Id = pt.Tag.Id,
                     Name = pt.Tag.Name
                 })
-                .ToList()
-        };
-    }
-    private static PostDetailDto MapToDetailDto(Post post)
-    {
-        return new PostDetailDto
-        {
-            Id = post.Id,
-            AuthorId = post.AuthorId,
-            AuthorUsername = post.Author.Username,
-            PostType = post.PostType,
-            Title = post.Title,
-            Slug = post.Slug,
-            Summary = post.Summary,
-            Status = post.Status,
-            Visibility = post.Visibility,
-            ViewCount = post.ViewCount,
-            LikeCount = post.LikeCount,
-            CommentCount = post.CommentCount,
-            BookmarkCount = post.BookmarkCount,
-            CreatedAt = post.CreatedAt,
-            UpdatedAt = post.UpdatedAt,
-            QuestionContent = post.QuestionPost?.Content,
-            QuestionImgUrl = post.QuestionPost?.ImgUrl,
-            PipelineDescription = post.PipelinePost?.Description,
-            Platform = post.PipelinePost?.Platform,
-            PipelineFormat = post.PipelinePost?.PipelineFormat,
-            ProjectType = post.PipelinePost?.ProjectType,
-            EnvironmentType = post.PipelinePost?.EnvironmentType,
-            DeploymentTarget = post.PipelinePost?.DeploymentTarget,
-            CiEnabled = post.PipelinePost?.CiEnabled,
-            CdEnabled = post.PipelinePost?.CdEnabled,
-            TestEnabled = post.PipelinePost?.TestEnabled,
-            SecurityScanEnabled = post.PipelinePost?.SecurityScanEnabled,
-            ForkCount = post.PipelinePost?.ForkCount,
-            VersionCount = post.PipelinePost?.VersionCount,
-            CurrentPipelineContent = post.PipelinePost?.CurrentVersion?.Content,
-            Tags = post.PostTags
-            .Select(pt => new PostTagDto
-            {
-                Id = pt.Tag.Id,
-                Name = pt.Tag.Name
-            })
-            .ToList()
+                .ToList(),
+            Detail = detail
         };
     }
 }

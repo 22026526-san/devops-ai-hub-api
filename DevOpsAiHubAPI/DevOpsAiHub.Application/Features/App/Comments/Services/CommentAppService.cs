@@ -48,7 +48,7 @@ public class CommentAppService : ICommentAppService
                 Id = x.Id,
                 PostId = x.PostId,
                 AuthorId = x.AuthorId,
-                AuthorUsername = x.Author.Username,
+                AuthorUsername = x.Author.Profile?.FullName,
                 AuthorAvatarUrl = x.Author.Profile?.AvatarUrl,
                 ParentCommentId = x.ParentCommentId,
                 Content = x.Content,

@@ -16,5 +16,9 @@ public class PostDto
     public int CommentCount { get; set; }
     public int BookmarkCount { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+
     public List<PostTagDto> Tags { get; set; } = new();
+
+    public object? Detail { get; set; }
 }
