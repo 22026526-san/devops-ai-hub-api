@@ -19,6 +19,8 @@ public class AiConversationConfiguration : IEntityTypeConfiguration<AiConversati
         builder.Property(x => x.RelatedPostId).HasColumnName("related_post_id").HasColumnType("char(36)");
         builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("datetime").IsRequired();
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime").IsRequired();
+        builder.Property(x => x.Status).HasColumnName("status").HasMaxLength(50);
+        builder.Property(x => x.MetadataJson).HasColumnName("metadata_json").HasColumnType("longtext");
 
         builder.HasIndex(x => x.UserId).HasDatabaseName("ix_ai_conversations_user_id");
         builder.HasIndex(x => x.RelatedPostId).HasDatabaseName("ix_ai_conversations_related_post_id");

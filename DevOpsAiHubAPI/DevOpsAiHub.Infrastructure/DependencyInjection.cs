@@ -31,6 +31,7 @@ public static class DependencyInjection
                 configuration.GetConnectionString("DefaultConnection"),
                 ServerVersion.AutoDetect(configuration.GetConnectionString("DefaultConnection"))));
 
+
         services.AddScoped<IApplicationDbContext>(provider =>
             provider.GetRequiredService<ApplicationDbContext>());
 
@@ -59,6 +60,8 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
+
+        services.Configure<QdrantOptions>(configuration.GetSection("AI:Qdrant"));
 
         return services;
     }

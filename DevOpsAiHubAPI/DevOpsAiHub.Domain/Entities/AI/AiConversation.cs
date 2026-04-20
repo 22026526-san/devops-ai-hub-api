@@ -11,6 +11,8 @@ public class AiConversation : BaseEntity
     public string ConversationType { get; set; } = null!;
     public string? Title { get; set; }
     public Guid? RelatedPostId { get; set; }
+    public string? Status { get; set; }
+    public string? MetadataJson { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
