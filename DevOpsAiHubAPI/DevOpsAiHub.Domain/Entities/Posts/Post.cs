@@ -1,6 +1,5 @@
 ﻿using DevOpsAiHub.Domain.Common;
 using DevOpsAiHub.Domain.Entities.Users;
-using System.Xml.Linq;
 
 namespace DevOpsAiHub.Domain.Entities.Posts;
 

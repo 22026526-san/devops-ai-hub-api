@@ -4,7 +4,8 @@ public class PostDto
 {
     public Guid Id { get; set; }
     public Guid AuthorId { get; set; }
-    public string AuthorUsername { get; set; } = null!;
+    public string? AuthorUsername { get; set; }
+    public string? AuthorImage { get; set; }
     public string PostType { get; set; } = null!;
     public string Title { get; set; } = null!;
     public string Slug { get; set; } = null!;
@@ -15,10 +16,17 @@ public class PostDto
     public int LikeCount { get; set; }
     public int CommentCount { get; set; }
     public int BookmarkCount { get; set; }
+    public bool IsLiked { get; set; }
+    public bool IsBookmarked { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
     public List<PostTagDto> Tags { get; set; } = new();
 
     public object? Detail { get; set; }
+
+    internal object ToList()
+    {
+        throw new NotImplementedException();
+    }
 }

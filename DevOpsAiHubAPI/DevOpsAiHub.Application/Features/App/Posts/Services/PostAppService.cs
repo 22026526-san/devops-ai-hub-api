@@ -6,6 +6,7 @@ using DevOpsAiHub.Application.Common.Interfaces.Services;
 using DevOpsAiHub.Application.Common.Models;
 using DevOpsAiHub.Application.Features.App.Posts.DTOs;
 using DevOpsAiHub.Domain.Entities.Posts;
+using DevOpsAiHub.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace DevOpsAiHub.Application.Features.App.Posts.Services;
@@ -47,6 +48,16 @@ public class PostAppService : IPostAppService
 
         var query = _postRepository.Query();
 
+        query = query.Where(x => x.Visibility == PostVisibility.Public || (request.CurrentUserId != null && x.AuthorId == request.CurrentUserId) ||
+             (request.CurrentUserId != null && x.Visibility == PostVisibility.Followers &&
+            _context.UserFollows.Any(f => f.FollowerId == request.CurrentUserId && f.FollowingId == x.AuthorId))
+        );
+
+        if (request.FilterUserId.HasValue)
+        {
+            query = query.Where(x => x.AuthorId == request.FilterUserId);
+        }
+
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var keyword = request.Search.Trim().ToLower();
@@ -86,8 +97,33 @@ public class PostAppService : IPostAppService
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
+        var postIds = posts.Select(p => p.Id).ToList();
+        var currentUserId = request.CurrentUserId; 
 
-        var items = posts.Select(MapToPostDto).ToList();
+        var likedPostIds = new HashSet<Guid>();
+        var bookmarkedPostIds = new HashSet<Guid>();
+
+        if (currentUserId.HasValue)
+        {
+            var likedList = await _context.Likes
+                .Where(l => l.UserId == currentUserId && postIds.Contains(l.PostId))
+                .Select(l => l.PostId)
+                .ToListAsync(cancellationToken);
+            likedPostIds = new HashSet<Guid>(likedList);
+
+            var bookmarkedList = await _context.Bookmarks
+                .Where(b => b.UserId == currentUserId && postIds.Contains(b.PostId))
+                .Select(b => b.PostId)
+                .ToListAsync(cancellationToken);
+            bookmarkedPostIds = new HashSet<Guid>(bookmarkedList);
+        }
+
+        var items = posts.Select(p => {
+            var dto = MapToPostDto(p);
+            dto.IsLiked = likedPostIds.Contains(p.Id);
+            dto.IsBookmarked = bookmarkedPostIds.Contains(p.Id);
+            return dto;
+        }).ToList();
 
         return new PagedResult<PostDto>
         {
@@ -558,7 +594,8 @@ public class PostAppService : IPostAppService
         {
             Id = post.Id,
             AuthorId = post.AuthorId,
-            AuthorUsername = post.Author.Username,
+            AuthorUsername = post.Author?.Profile?.FullName,
+            AuthorImage = post.Author?.Profile?.AvatarUrl,
             PostType = post.PostType,
             Title = post.Title,
             Slug = post.Slug,

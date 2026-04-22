@@ -4,6 +4,8 @@ public class GetPostsQueryDto
 {
     public string? Search { get; set; }
     public List<Guid> TagIds { get; set; } = new();
+    public Guid? FilterUserId { get; set; }
+    public Guid? CurrentUserId { get; set; }
     public int? Year { get; set; }
     public int? Month { get; set; }
     public int? Day { get; set; }

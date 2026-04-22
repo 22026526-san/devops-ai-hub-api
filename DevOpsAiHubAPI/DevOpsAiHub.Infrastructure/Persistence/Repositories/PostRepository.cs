@@ -2,6 +2,7 @@
 using DevOpsAiHub.Application.Common.Interfaces.Repositories;
 using DevOpsAiHub.Domain.Entities.Posts;
 using Microsoft.EntityFrameworkCore;
+using DevOpsAiHub.Domain.Enums;
 
 namespace DevOpsAiHub.Infrastructure.Persistence.Repositories;
 
@@ -18,12 +19,13 @@ public class PostRepository : IPostRepository
     {
         return _context.Posts
             .Include(x => x.Author)
+                .ThenInclude(u => u.Profile)
             .Include(x => x.QuestionPost)
             .Include(x => x.PipelinePost)
                 .ThenInclude(x => x!.CurrentVersion)
             .Include(x => x.PostTags)
                 .ThenInclude(x => x.Tag)
-            .Where(x => x.DeletedAt == null && x.Status == "Published");
+            .Where(x => x.DeletedAt == null && x.Status == PostStatus.Published);
     }
 
     public async Task<List<Post>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -37,6 +39,7 @@ public class PostRepository : IPostRepository
     {
         return await _context.Posts
             .Include(x => x.Author)
+                .ThenInclude(u => u.Profile)
             .Include(x => x.QuestionPost)
             .Include(x => x.PipelinePost)
                 .ThenInclude(x => x!.CurrentVersion)
@@ -49,6 +52,7 @@ public class PostRepository : IPostRepository
     {
         return await _context.Posts
             .Include(x => x.Author)
+                .ThenInclude(u => u.Profile)
             .Include(x => x.QuestionPost)
             .Include(x => x.PipelinePost)
                 .ThenInclude(x => x!.CurrentVersion)
