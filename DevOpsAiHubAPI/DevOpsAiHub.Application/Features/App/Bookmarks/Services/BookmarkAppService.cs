@@ -105,7 +105,6 @@ public class BookmarkAppService : IBookmarkAppService
             PostType = x.Post.PostType,
             Title = x.Post.Title,
             Slug = x.Post.Slug,
-            Summary = x.Post.Summary,
             Status = x.Post.Status,
             Visibility = x.Post.Visibility,
             ViewCount = x.Post.ViewCount,

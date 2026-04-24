@@ -17,7 +17,6 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
         builder.Property(x => x.PostType).HasColumnName("post_type").HasMaxLength(20).IsRequired();
         builder.Property(x => x.Title).HasColumnName("title").HasMaxLength(255).IsRequired();
         builder.Property(x => x.Slug).HasColumnName("slug").HasMaxLength(255).IsRequired();
-        builder.Property(x => x.Summary).HasColumnName("summary").HasColumnType("text");
         builder.Property(x => x.Status).HasColumnName("status").HasMaxLength(20).IsRequired();
         builder.Property(x => x.Visibility).HasColumnName("visibility").HasMaxLength(20).IsRequired();
         builder.Property(x => x.ViewCount).HasColumnName("view_count").HasDefaultValue(0).IsRequired();

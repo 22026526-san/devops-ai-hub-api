@@ -50,7 +50,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("suggested-follows")]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<IActionResult> GetSuggestedProfiles(CancellationToken cancellationToken)
     {
         var result = await _userAppService.GetSuggestedProfilesAsync(cancellationToken);

@@ -2,6 +2,7 @@
 using DevOpsAiHub.Domain.Entities.Posts;
 using DevOpsAiHub.Domain.Entities.Users;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace DevOpsAiHub.Application.Common.Interfaces.Persistence;
 
@@ -25,6 +26,7 @@ public interface IApplicationDbContext
     DbSet<AiConversation> AiConversations { get; }
     DbSet<AiMessage> AiMessages { get; }
     DbSet<AiPipelineResult> AiPipelineResults { get; }
+    DatabaseFacade Database { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -120,23 +120,7 @@ public class PipelineAppService : IPipelineAppService
         if (post.AuthorId != currentUserId.Value)
             throw new ForbiddenAccessException("You are not allowed to update this pipeline.");
 
-        if (string.IsNullOrWhiteSpace(request.Platform) ||
-            string.IsNullOrWhiteSpace(request.PipelineFormat) ||
-            string.IsNullOrWhiteSpace(request.ProjectType))
-        {
-            throw new BadRequestException("Invalid pipeline metadata.");
-        }
-
         post.PipelinePost.Description = request.Description?.Trim();
-        post.PipelinePost.Platform = request.Platform.Trim();
-        post.PipelinePost.PipelineFormat = request.PipelineFormat.Trim();
-        post.PipelinePost.ProjectType = request.ProjectType.Trim();
-        post.PipelinePost.EnvironmentType = request.EnvironmentType?.Trim();
-        post.PipelinePost.DeploymentTarget = request.DeploymentTarget?.Trim();
-        post.PipelinePost.CiEnabled = request.CiEnabled;
-        post.PipelinePost.CdEnabled = request.CdEnabled;
-        post.PipelinePost.TestEnabled = request.TestEnabled;
-        post.PipelinePost.SecurityScanEnabled = request.SecurityScanEnabled;
         post.PipelinePost.UpdatedAt = _dateTimeService.UtcNow;
         post.UpdatedAt = _dateTimeService.UtcNow;
 
@@ -144,21 +128,6 @@ public class PipelineAppService : IPipelineAppService
         await _context.SaveChangesAsync(cancellationToken);
 
         return MapToDto(post);
-    }
-
-    private async Task<string> GenerateUniqueSlugAsync(string title, CancellationToken cancellationToken)
-    {
-        var baseSlug = _slugService.GenerateSlug(title);
-        var slug = baseSlug;
-        var count = 1;
-
-        while (await _postRepository.GetBySlugAsync(slug, cancellationToken) is not null)
-        {
-            slug = $"{baseSlug}-{count}";
-            count++;
-        }
-
-        return slug;
     }
 
     private static PipelineDto MapToDto(Post post)
@@ -172,18 +141,7 @@ public class PipelineAppService : IPipelineAppService
             AuthorUsername = post.Author.Username,
             Title = post.Title,
             Slug = post.Slug,
-            Summary = post.Summary,
             Description = pipeline.Description,
-            Platform = pipeline.Platform,
-            PipelineFormat = pipeline.PipelineFormat,
-            ProjectType = pipeline.ProjectType,
-            EnvironmentType = pipeline.EnvironmentType,
-            DeploymentTarget = pipeline.DeploymentTarget,
-            CiEnabled = pipeline.CiEnabled,
-            CdEnabled = pipeline.CdEnabled,
-            TestEnabled = pipeline.TestEnabled,
-            SecurityScanEnabled = pipeline.SecurityScanEnabled,
-            ForkCount = pipeline.ForkCount,
             VersionCount = pipeline.VersionCount,
             CurrentPipelineContent = pipeline.CurrentVersion?.Content,
             CreatedAt = post.CreatedAt,

@@ -31,7 +31,7 @@ public class PostRepository : IPostRepository
     public async Task<List<Post>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await Query()
-            .OrderByDescending(x => x.CreatedAt)
+            .OrderByDescending(x => x.UpdatedAt)
             .ToListAsync(cancellationToken);
     }
 

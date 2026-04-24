@@ -131,17 +131,21 @@ public class UserAppService : IUserAppService
     public async Task<List<UserProfileDto>> GetSuggestedProfilesAsync(CancellationToken cancellationToken = default)
     {
         var currentUserId = _currentUserService.UserId;
-        if (currentUserId is null)
-            throw new UnauthorizedException("User is not authenticated.");
+
+        var excludedUserIds = new HashSet<Guid>();
 
         var users = await _userRepository.GetAllAsync(cancellationToken);
 
-        var followingUserIds = await _userFollowRepository.GetFollowingUserIdsAsync(currentUserId.Value, cancellationToken);
 
-        var excludedUserIds = new HashSet<Guid>(followingUserIds)
-    {
-        currentUserId.Value
-    };
+        if (currentUserId.HasValue)
+        {
+            var followingUserIds = await _userFollowRepository.GetFollowingUserIdsAsync(currentUserId.Value, cancellationToken);
+
+            excludedUserIds = new HashSet<Guid>(followingUserIds)
+            {
+                currentUserId.Value 
+            };
+        }
 
         var candidateUsers = users
             .Where(x => !excludedUserIds.Contains(x.Id))

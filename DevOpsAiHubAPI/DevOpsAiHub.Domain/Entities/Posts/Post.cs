@@ -9,7 +9,6 @@ public class Post : BaseAuditableEntity
     public string PostType { get; set; } = null!;
     public string Title { get; set; } = null!;
     public string Slug { get; set; } = null!;
-    public string? Summary { get; set; }
     public string Status { get; set; } = null!;
     public string Visibility { get; set; } = null!;
     public int ViewCount { get; set; }

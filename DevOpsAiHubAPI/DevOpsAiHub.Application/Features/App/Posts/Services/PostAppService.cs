@@ -183,7 +183,6 @@ public class PostAppService : IPostAppService
             PostType = "Question",
             Title = request.Title.Trim(),
             Slug = await GenerateUniqueSlugAsync(request.Title.Trim(), cancellationToken),
-            Summary = request.Summary?.Trim(),
             Status = "Published",
             Visibility = request.Visibility,
             ViewCount = 0,
@@ -252,15 +251,6 @@ public class PostAppService : IPostAppService
         if (string.IsNullOrWhiteSpace(request.Title))
             throw new BadRequestException("Title is required.");
 
-        if (string.IsNullOrWhiteSpace(request.Platform))
-            throw new BadRequestException("Platform is required.");
-
-        if (string.IsNullOrWhiteSpace(request.PipelineFormat))
-            throw new BadRequestException("Pipeline format is required.");
-
-        if (string.IsNullOrWhiteSpace(request.ProjectType))
-            throw new BadRequestException("Project type is required.");
-
         if (string.IsNullOrWhiteSpace(request.Content))
             throw new BadRequestException("Pipeline content is required.");
 
@@ -268,95 +258,99 @@ public class PostAppService : IPostAppService
         var postId = Guid.NewGuid();
         var versionId = Guid.NewGuid();
 
-        var post = new Post
+        await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+
+        try
         {
-            Id = postId,
-            AuthorId = currentUserId.Value,
-            PostType = "Pipeline",
-            Title = request.Title.Trim(),
-            Slug = await GenerateUniqueSlugAsync(request.Title.Trim(), cancellationToken),
-            Summary = request.Summary?.Trim(),
-            Status = "Published",
-            Visibility = request.Visibility,
-            ViewCount = 0,
-            LikeCount = 0,
-            CommentCount = 0,
-            BookmarkCount = 0,
-            CreatedAt = now,
-            UpdatedAt = now
-        };
 
-        var pipelinePost = new PipelinePost
-        {
-            PostId = postId,
-            SourcePostId = null,
-            CurrentVersionId = versionId,
-            Description = request.Description?.Trim(),
-            Platform = request.Platform.Trim(),
-            PipelineFormat = request.PipelineFormat.Trim(),
-            ProjectType = request.ProjectType.Trim(),
-            EnvironmentType = request.EnvironmentType?.Trim(),
-            DeploymentTarget = request.DeploymentTarget?.Trim(),
-            CiEnabled = request.CiEnabled,
-            CdEnabled = request.CdEnabled,
-            TestEnabled = request.TestEnabled,
-            SecurityScanEnabled = request.SecurityScanEnabled,
-            ForkCount = 0,
-            VersionCount = 1,
-            CreatedAt = now,
-            UpdatedAt = now
-        };
-
-        var version = new PipelineVersion
-        {
-            Id = versionId,
-            PipelinePostId = postId,
-            VersionNumber = 1,
-            Content = request.Content,
-            Changelog = request.Changelog?.Trim(),
-            CreatedBy = currentUserId.Value,
-            CreatedAt = now
-        };
-
-        var tagEntities = new List<Tag>();
-
-        if (request.TagIds.Any())
-        {
-            tagEntities = await _tagRepository.GetByIdsAsync(request.TagIds.Distinct().ToList(), cancellationToken);
-
-            if (tagEntities.Count != request.TagIds.Distinct().Count())
-                throw new BadRequestException("One or more tags are invalid.");
-        }
-
-        await _postRepository.AddAsync(post, cancellationToken);
-        await _context.PipelinePosts.AddAsync(pipelinePost, cancellationToken);
-        await _context.PipelineVersions.AddAsync(version, cancellationToken);
-
-        if (tagEntities.Any())
-        {
-            var postTags = tagEntities.Select(tag => new PostTag
+            var post = new Post
             {
-                Id = Guid.NewGuid(),
+                Id = postId,
+                AuthorId = currentUserId.Value,
+                PostType = "Pipeline",
+                Title = request.Title.Trim(),
+                Slug = await GenerateUniqueSlugAsync(request.Title.Trim(), cancellationToken),
+                Status = "Published",
+                Visibility = request.Visibility,
+                ViewCount = 0,
+                LikeCount = 0,
+                CommentCount = 0,
+                BookmarkCount = 0,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            var pipelinePost = new PipelinePost
+            {
                 PostId = postId,
-                TagId = tag.Id,
-                CreatedAt = now
-            }).ToList();
+                SourcePostId = null,
+                CurrentVersionId = null,
+                Description = request.Description?.Trim(),
+                VersionCount = 1,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
 
-            await _postTagRepository.AddRangeAsync(postTags, cancellationToken);
-
-            foreach (var tag in tagEntities)
+            var version = new PipelineVersion
             {
-                tag.PostCount += 1;
-                _tagRepository.Update(tag);
+                Id = versionId,
+                PipelinePostId = postId,
+                VersionNumber = 1,
+                Content = request.Content,
+                Changelog = request.Changelog?.Trim(),
+                CreatedBy = currentUserId.Value,
+                CreatedAt = now
+            };
+
+            var tagEntities = new List<Tag>();
+
+            if (request.TagIds.Any())
+            {
+                tagEntities = await _tagRepository.GetByIdsAsync(request.TagIds.Distinct().ToList(), cancellationToken);
+
+                if (tagEntities.Count != request.TagIds.Distinct().Count())
+                    throw new BadRequestException("One or more tags are invalid.");
             }
+
+            await _postRepository.AddAsync(post, cancellationToken);
+            await _context.PipelinePosts.AddAsync(pipelinePost, cancellationToken);
+            await _context.PipelineVersions.AddAsync(version, cancellationToken);
+
+            if (tagEntities.Any())
+            {
+                var postTags = tagEntities.Select(tag => new PostTag
+                {
+                    Id = Guid.NewGuid(),
+                    PostId = postId,
+                    TagId = tag.Id,
+                    CreatedAt = now
+                }).ToList();
+
+                await _postTagRepository.AddRangeAsync(postTags, cancellationToken);
+
+                foreach (var tag in tagEntities)
+                {
+                    tag.PostCount += 1;
+                    _tagRepository.Update(tag);
+                }
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            pipelinePost.CurrentVersionId = versionId;
+            await _context.SaveChangesAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+
+            var createdPost = await _postRepository.GetByIdAsync(postId, cancellationToken)
+                ?? throw new NotFoundException("Created pipeline post not found.");
+
+            return MapToPostDto(createdPost);
+        } catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
         }
-
-        await _context.SaveChangesAsync(cancellationToken);
-
-        var createdPost = await _postRepository.GetByIdAsync(postId, cancellationToken)
-            ?? throw new NotFoundException("Created pipeline post not found.");
-
-        return MapToPostDto(createdPost);
     }
 
     public async Task<PostDto> UpdatePostAsync(Guid id, UpdatePostRequestDto request, CancellationToken cancellationToken = default)
@@ -376,7 +370,6 @@ public class PostAppService : IPostAppService
             throw new BadRequestException("Title is required.");
 
         post.Title = request.Title.Trim();
-        post.Summary = request.Summary?.Trim();
         post.Visibility = request.Visibility;
         post.UpdatedAt = _dateTimeService.UtcNow;
 
@@ -414,24 +407,12 @@ public class PostAppService : IPostAppService
             if (post.PipelinePost is null)
                 throw new BadRequestException("Pipeline post not found.");
 
-            if (string.IsNullOrWhiteSpace(request.Platform) ||
-                string.IsNullOrWhiteSpace(request.PipelineFormat) ||
-                string.IsNullOrWhiteSpace(request.ProjectType) ||
-                string.IsNullOrWhiteSpace(request.PipelineContent))
+            if (string.IsNullOrWhiteSpace(request.PipelineContent))
             {
                 throw new BadRequestException("Pipeline data is invalid.");
             }
 
             post.PipelinePost.Description = request.PipelineDescription?.Trim();
-            post.PipelinePost.Platform = request.Platform.Trim();
-            post.PipelinePost.PipelineFormat = request.PipelineFormat.Trim();
-            post.PipelinePost.ProjectType = request.ProjectType.Trim();
-            post.PipelinePost.EnvironmentType = request.EnvironmentType?.Trim();
-            post.PipelinePost.DeploymentTarget = request.DeploymentTarget?.Trim();
-            post.PipelinePost.CiEnabled = request.CiEnabled ?? post.PipelinePost.CiEnabled;
-            post.PipelinePost.CdEnabled = request.CdEnabled ?? post.PipelinePost.CdEnabled;
-            post.PipelinePost.TestEnabled = request.TestEnabled ?? post.PipelinePost.TestEnabled;
-            post.PipelinePost.SecurityScanEnabled = request.SecurityScanEnabled ?? post.PipelinePost.SecurityScanEnabled;
             post.PipelinePost.UpdatedAt = _dateTimeService.UtcNow;
 
             var nextVersionNumber = post.PipelinePost.VersionCount + 1;
@@ -575,16 +556,6 @@ public class PostAppService : IPostAppService
             detail = new PipelinePostDetailDto
             {
                 Description = post.PipelinePost.Description,
-                Platform = post.PipelinePost.Platform,
-                PipelineFormat = post.PipelinePost.PipelineFormat,
-                ProjectType = post.PipelinePost.ProjectType,
-                EnvironmentType = post.PipelinePost.EnvironmentType,
-                DeploymentTarget = post.PipelinePost.DeploymentTarget,
-                CiEnabled = post.PipelinePost.CiEnabled,
-                CdEnabled = post.PipelinePost.CdEnabled,
-                TestEnabled = post.PipelinePost.TestEnabled,
-                SecurityScanEnabled = post.PipelinePost.SecurityScanEnabled,
-                ForkCount = post.PipelinePost.ForkCount,
                 VersionCount = post.PipelinePost.VersionCount,
                 PipelineContent = post.PipelinePost.CurrentVersion?.Content
             };
@@ -599,7 +570,6 @@ public class PostAppService : IPostAppService
             PostType = post.PostType,
             Title = post.Title,
             Slug = post.Slug,
-            Summary = post.Summary,
             Status = post.Status,
             Visibility = post.Visibility,
             ViewCount = post.ViewCount,
