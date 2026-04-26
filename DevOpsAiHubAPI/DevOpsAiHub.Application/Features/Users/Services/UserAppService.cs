@@ -268,6 +268,7 @@ public class UserAppService : IUserAppService
         return new UserProfileDto
         {
             UserId = user.Id,
+            Role = user.Role,
             Email = user.Email,
             Username = user.Username,
             FullName = profile?.FullName,

@@ -11,4 +11,5 @@ public class UserProfileDto
     public string? Bio { get; set; }
     public string? GithubUrl { get; set; }
     public int FollowerCount { get; set; }
+    public string Role { get; set; } = null!;
 }

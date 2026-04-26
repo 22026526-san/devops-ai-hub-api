@@ -205,6 +205,16 @@ public class CommentAppService : ICommentAppService
         string? imageUrl = comment.ImgUrl;
         string? imagePublicId = comment.ImgPublicId;
 
+        if (request.Image is null)
+        {
+            if (comment.ImgPublicId is not null)
+            {
+                await _cloudinaryService.DeleteImageAsync(comment.ImgPublicId, cancellationToken);
+            }
+            imagePublicId = null;
+            imageUrl = null;
+        }
+
         if (request.Image is not null && request.Image.Length > 0)
         {
             if (!string.IsNullOrWhiteSpace(comment.ImgPublicId))
