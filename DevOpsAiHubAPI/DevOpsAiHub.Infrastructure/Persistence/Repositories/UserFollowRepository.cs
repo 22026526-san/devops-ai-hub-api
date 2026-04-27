@@ -20,6 +20,12 @@ public class UserFollowRepository : IUserFollowRepository
             .CountAsync(x => x.FollowingId == userId, cancellationToken);
     }
 
+    public async Task<int> CountFollowingAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await _context.UserFollows
+            .CountAsync(x => x.FollowerId == userId, cancellationToken);
+    }
+
     public async Task<Dictionary<Guid, int>> CountFollowersByUserIdsAsync(IEnumerable<Guid> userIds, CancellationToken cancellationToken = default)
     {
         var userIdList = userIds.ToList();
@@ -27,6 +33,21 @@ public class UserFollowRepository : IUserFollowRepository
         return await _context.UserFollows
             .Where(x => userIdList.Contains(x.FollowingId))
             .GroupBy(x => x.FollowingId)
+            .Select(g => new
+            {
+                UserId = g.Key,
+                Count = g.Count()
+            })
+            .ToDictionaryAsync(x => x.UserId, x => x.Count, cancellationToken);
+    }
+
+    public async Task<Dictionary<Guid, int>> CountFollowingByUserIdsAsync(IEnumerable<Guid> userIds, CancellationToken cancellationToken = default)
+    {
+        var userIdList = userIds.ToList();
+
+        return await _context.UserFollows
+            .Where(x => userIdList.Contains(x.FollowerId)) 
+            .GroupBy(x => x.FollowerId)               
             .Select(g => new
             {
                 UserId = g.Key,

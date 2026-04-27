@@ -6,6 +6,7 @@ using DevOpsAiHub.Application.Common.Interfaces.Services;
 using DevOpsAiHub.Application.Features.Users.DTOs;
 using DevOpsAiHub.Domain.Enums;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevOpsAiHub.Application.Features.Users.Services;
 
@@ -107,11 +108,13 @@ public class UserAppService : IUserAppService
         var users = await _userRepository.GetAllAsync(cancellationToken);
         var userIds = users.Select(x => x.Id).ToList();
         var followerMap = await _userFollowRepository.CountFollowersByUserIdsAsync(userIds, cancellationToken);
+        var followingMap = await _userFollowRepository.CountFollowingByUserIdsAsync(userIds, cancellationToken);
 
         return users.Select(user =>
         {
             var profile = user.Profile;
             followerMap.TryGetValue(user.Id, out var followerCount);
+            followingMap.TryGetValue(user.Id, out var followingCount);
 
             return new UserProfileDto
             {
@@ -123,7 +126,10 @@ public class UserAppService : IUserAppService
                 AvatarUrl = profile?.AvatarUrl,
                 Bio = profile?.Bio,
                 GithubUrl = profile?.GithubUrl,
-                FollowerCount = followerCount
+                FollowerCount = followerCount,
+                FollowingCount = followingCount,
+                Status = user.Status,
+                CreatedAt = profile?.CreatedAt
             };
         }).ToList();
     }
@@ -153,12 +159,14 @@ public class UserAppService : IUserAppService
 
         var candidateUserIds = candidateUsers.Select(x => x.Id).ToList();
         var followerMap = await _userFollowRepository.CountFollowersByUserIdsAsync(candidateUserIds, cancellationToken);
+        var followingMap = await _userFollowRepository.CountFollowingByUserIdsAsync(candidateUserIds, cancellationToken);
 
         return candidateUsers
             .Select(user =>
             {
                 var profile = user.Profile;
                 followerMap.TryGetValue(user.Id, out var followerCount);
+                followingMap.TryGetValue(user.Id, out var followingCount);
 
                 return new UserProfileDto
                 {
@@ -170,7 +178,9 @@ public class UserAppService : IUserAppService
                     AvatarUrl = profile?.AvatarUrl,
                     Bio = profile?.Bio,
                     GithubUrl = profile?.GithubUrl,
-                    FollowerCount = followerCount
+                    Status = user.Status,
+                    FollowerCount = followerCount,
+                    FollowingCount = followingCount
                 };
             })
             .OrderByDescending(x => x.FollowerCount)
@@ -259,11 +269,20 @@ public class UserAppService : IUserAppService
     private async Task<UserProfileDto> BuildUserProfileDtoAsync(Guid userId, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
+        var currentUserId = _currentUserService.UserId;
         if (user is null)
             throw new NotFoundException("User not found.");
 
         var profile = user.Profile ?? await _userProfileRepository.GetByUserIdAsync(userId, cancellationToken);
         var followerCount = await _userFollowRepository.CountFollowersAsync(userId, cancellationToken);
+        var followingCount = await _userFollowRepository.CountFollowingAsync(userId, cancellationToken);
+        var isFollowing = false;
+
+        if (currentUserId != null && currentUserId != userId)
+        {
+            isFollowing = await _context.UserFollows
+                .AnyAsync(x => x.FollowerId == currentUserId.Value && x.FollowingId == userId, cancellationToken);
+        }
 
         return new UserProfileDto
         {
@@ -276,7 +295,11 @@ public class UserAppService : IUserAppService
             AvatarUrl = profile?.AvatarUrl,
             Bio = profile?.Bio,
             GithubUrl = profile?.GithubUrl,
-            FollowerCount = followerCount
+            Status = user.Status,
+            FollowerCount = followerCount,
+            FollowingCount = followingCount,
+            IsFollowing = isFollowing,
+            CreatedAt = profile?.CreatedAt
         };
     }
     public async Task VerifyUpdateUserOtpAsync(VerifyUpdateUserOtpDto request, CancellationToken cancellationToken = default)

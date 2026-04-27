@@ -11,5 +11,9 @@ public class UserProfileDto
     public string? Bio { get; set; }
     public string? GithubUrl { get; set; }
     public int FollowerCount { get; set; }
+    public int FollowingCount { get; set; }
     public string Role { get; set; } = null!;
+    public string Status { get; set; } = null!;
+    public bool? IsFollowing { get; set; }
+    public DateTime? CreatedAt { get; set; }
 }
