@@ -1,4 +1,5 @@
-﻿using DevOpsAiHub.Application.Features.App.Bookmarks.Services;
+﻿using DevOpsAiHub.Application.Features.App.Bookmarks.DTOs;
+using DevOpsAiHub.Application.Features.App.Bookmarks.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,9 +33,9 @@ public class BookmarksController : ControllerBase
 
     [HttpGet("api/users/me/bookmarks")]
     [Authorize]
-    public async Task<IActionResult> GetMyBookmarks(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetMyBookmarks([FromQuery] GetBookmarksQueryDto request, CancellationToken cancellationToken)
     {
-        var result = await _bookmarkAppService.GetMyBookmarksAsync(cancellationToken);
+        var result = await _bookmarkAppService.GetMyBookmarksAsync( request,cancellationToken);
         return Ok(result);
     }
 }

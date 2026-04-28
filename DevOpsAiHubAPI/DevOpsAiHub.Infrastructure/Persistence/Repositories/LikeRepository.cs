@@ -25,14 +25,25 @@ public class LikeRepository : ILikeRepository
         return await _context.Likes
             .AnyAsync(x => x.PostId == postId && x.UserId == userId, cancellationToken);
     }
-    public async Task<List<Like>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public IQueryable<Like> GetByUserIdAsync(Guid userId)
     {
-        return await _context.Likes
+        return _context.Likes
             .Include(x => x.Post)
-                .ThenInclude(x => x.Author)
+                .ThenInclude(p => p.Author)
+                    .ThenInclude(a => a.Profile)
+
+            .Include(x => x.Post)
+                .ThenInclude(p => p.QuestionPost)
+
+            .Include(x => x.Post)
+                .ThenInclude(p => p.PipelinePost)
+                    .ThenInclude(pl => pl!.CurrentVersion)
+
+            .Include(x => x.Post)
+                .ThenInclude(p => p.PostTags)
+                    .ThenInclude(pt => pt.Tag)
             .Where(x => x.UserId == userId && x.Post.DeletedAt == null)
-            .OrderByDescending(x => x.CreatedAt)
-            .ToListAsync(cancellationToken);
+            .OrderByDescending(x => x.CreatedAt);
     }
 
     public async Task AddAsync(Like like, CancellationToken cancellationToken = default)

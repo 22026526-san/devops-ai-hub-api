@@ -26,14 +26,25 @@ public class BookmarkRepository : IBookmarkRepository
             .AnyAsync(x => x.PostId == postId && x.UserId == userId, cancellationToken);
     }
 
-    public async Task<List<Bookmark>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    public IQueryable<Bookmark> GetByUserIdAsync(Guid userId)
     {
-        return await _context.Bookmarks
+        return _context.Bookmarks
             .Include(x => x.Post)
-                .ThenInclude(x => x.Author)
+                .ThenInclude(p => p.Author)
+                    .ThenInclude(a => a.Profile)
+
+            .Include(x => x.Post)
+                .ThenInclude(p => p.QuestionPost)
+
+            .Include(x => x.Post)
+                .ThenInclude(p => p.PipelinePost)
+                    .ThenInclude(pl => pl!.CurrentVersion)
+
+            .Include(x => x.Post)
+                .ThenInclude(p => p.PostTags)
+                    .ThenInclude(pt => pt.Tag)
             .Where(x => x.UserId == userId && x.Post.DeletedAt == null)
-            .OrderByDescending(x => x.CreatedAt)
-            .ToListAsync(cancellationToken);
+            .OrderByDescending(x => x.CreatedAt);
     }
 
     public async Task AddAsync(Bookmark bookmark, CancellationToken cancellationToken = default)

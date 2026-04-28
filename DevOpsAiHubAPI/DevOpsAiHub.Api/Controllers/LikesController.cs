@@ -1,4 +1,5 @@
-﻿using DevOpsAiHub.Application.Features.App.Likes.Services;
+﻿using DevOpsAiHub.Application.Features.App.Likes.DTOs;
+using DevOpsAiHub.Application.Features.App.Likes.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,9 +33,9 @@ public class LikesController : ControllerBase
 
     [HttpGet("api/users/me/likes")]
     [Authorize]
-    public async Task<IActionResult> GetMyLikedPosts(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetMyLikedPosts([FromQuery] GetLikesQueryDto request,CancellationToken cancellationToken)
     {
-        var result = await _likeAppService.GetMyLikedPostsAsync(cancellationToken);
+        var result = await _likeAppService.GetMyLikedPostsAsync(request, cancellationToken);
         return Ok(result);
     }
 }
