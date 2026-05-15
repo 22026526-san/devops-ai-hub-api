@@ -18,9 +18,9 @@ public class TagsController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromQuery] GetTagQueryDto request, CancellationToken cancellationToken)
     {
-        var result = await _tagAppService.GetAllAsync(cancellationToken);
+        var result = await _tagAppService.GetAllAsync(request ,cancellationToken);
         return Ok(result);
     }
 

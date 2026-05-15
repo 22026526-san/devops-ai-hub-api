@@ -85,6 +85,25 @@ public class CommentAppService : ICommentAppService
         if (string.IsNullOrWhiteSpace(request.Content) && request.Image is null)
             throw new BadRequestException("Comment content or image is required.");
 
+        if (request.Image != null)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
+            var extension = Path.GetExtension(request.Image.FileName).ToLowerInvariant();
+
+            if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+            {
+                throw new BadRequestException("Định dạng file không hỗ trợ.");
+            }
+
+            var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/webp" };
+
+            if (!allowedMimeTypes.Contains(request.Image.ContentType.ToLower()))
+            {
+                throw new BadRequestException("File không phải là hình ảnh hợp lệ.");
+            }
+        }
+
         var post = await _postRepository.GetByIdAsync(request.PostId, cancellationToken);
         if (post is null)
             throw new NotFoundException("Post not found.");
@@ -137,6 +156,25 @@ public class CommentAppService : ICommentAppService
 
         if (string.IsNullOrWhiteSpace(request.Content) && request.Image is null)
             throw new BadRequestException("Reply content or image is required.");
+
+        if (request.Image != null)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
+            var extension = Path.GetExtension(request.Image.FileName).ToLowerInvariant();
+
+            if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+            {
+                throw new BadRequestException("Định dạng file không hỗ trợ.");
+            }
+
+            var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/webp" };
+
+            if (!allowedMimeTypes.Contains(request.Image.ContentType.ToLower()))
+            {
+                throw new BadRequestException("File không phải là hình ảnh hợp lệ.");
+            }
+        }
 
         var parentComment = await _commentRepository.GetByIdAsync(parentCommentId, cancellationToken);
         if (parentComment is null)
@@ -194,6 +232,25 @@ public class CommentAppService : ICommentAppService
 
         if (string.IsNullOrWhiteSpace(request.Content) && request.Image is null)
             throw new BadRequestException("Comment content or image is required.");
+
+        if (request.Image != null)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
+            var extension = Path.GetExtension(request.Image.FileName).ToLowerInvariant();
+
+            if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+            {
+                throw new BadRequestException("Định dạng file không hỗ trợ.");
+            }
+
+            var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/webp" };
+
+            if (!allowedMimeTypes.Contains(request.Image.ContentType.ToLower()))
+            {
+                throw new BadRequestException("File không phải là hình ảnh hợp lệ.");
+            }
+        }
 
         var comment = await _commentRepository.GetByIdAsync(commentId, cancellationToken);
         if (comment is null)

@@ -3,10 +3,12 @@ using DevOpsAiHub.Application.Common.Interfaces.Auth;
 using DevOpsAiHub.Application.Common.Interfaces.Persistence;
 using DevOpsAiHub.Application.Common.Interfaces.Repositories;
 using DevOpsAiHub.Application.Common.Interfaces.Services;
+using DevOpsAiHub.Application.Common.Models;
 using DevOpsAiHub.Application.Features.Users.DTOs;
 using DevOpsAiHub.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace DevOpsAiHub.Application.Features.Users.Services;
 
@@ -103,14 +105,29 @@ public class UserAppService : IUserAppService
         return await BuildUserProfileDtoAsync(userId, cancellationToken);
     }
 
-    public async Task<List<UserProfileDto>> GetAllProfilesAsync(CancellationToken cancellationToken = default)
+    public async Task<PagedResult<UserProfileDto>> GetAllProfilesAsync(GetUserQueryDto request,CancellationToken cancellationToken = default)
     {
         var users = await _userRepository.GetAllAsync(cancellationToken);
         var userIds = users.Select(x => x.Id).ToList();
         var followerMap = await _userFollowRepository.CountFollowersByUserIdsAsync(userIds, cancellationToken);
         var followingMap = await _userFollowRepository.CountFollowingByUserIdsAsync(userIds, cancellationToken);
 
-        return users.Select(user =>
+        var page = request.Page <= 0 ? 1 : request.Page;
+        var pageSize = request.PageSize <= 0 ? 20 : request.PageSize;
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var keyword = request.Search.Trim();
+            users = users.Where(x => x.Profile?.FullName?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+        }
+
+        var totalItems = users.Count;
+
+        var pagedUsers = users
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+
+        var items = pagedUsers.Select(user =>
         {
             var profile = user.Profile;
             followerMap.TryGetValue(user.Id, out var followerCount);
@@ -132,6 +149,15 @@ public class UserAppService : IUserAppService
                 CreatedAt = profile?.CreatedAt
             };
         }).ToList();
+        return new PagedResult<UserProfileDto>
+        {
+            Items = items,
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
+            HasNextPage = page * pageSize < totalItems
+        };
     }
 
     public async Task<List<UserProfileDto>> GetSuggestedProfilesAsync(CancellationToken cancellationToken = default)
@@ -217,6 +243,20 @@ public class UserAppService : IUserAppService
 
         if (file is null || file.Length == 0)
             throw new BadRequestException("Avatar file is required.");
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+        if (string.IsNullOrEmpty(extension) || !allowedExtensions.Contains(extension))
+        {
+            throw new BadRequestException("Định dạng file không được hỗ trợ.");
+        }
+
+        var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/webp" };
+        if (!allowedMimeTypes.Contains(file.ContentType.ToLower()))
+        {
+            throw new BadRequestException("File không phải là hình ảnh hợp lệ.");
+        }
 
         var profile = await _userProfileRepository.GetByUserIdAsync(userId.Value, cancellationToken);
         if (profile is null)

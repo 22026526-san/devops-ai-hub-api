@@ -2,8 +2,13 @@
 using DevOpsAiHub.Application.Common.Interfaces.Persistence;
 using DevOpsAiHub.Application.Common.Interfaces.Repositories;
 using DevOpsAiHub.Application.Common.Interfaces.Services;
+using DevOpsAiHub.Application.Common.Models;
+using DevOpsAiHub.Application.Features.App.Posts.DTOs;
 using DevOpsAiHub.Application.Features.App.Tags.DTOs;
 using DevOpsAiHub.Domain.Entities.Posts;
+using DevOpsAiHub.Domain.Entities.Users;
+using Microsoft.Extensions.Hosting;
+
 
 namespace DevOpsAiHub.Application.Features.App.Tags.Services;
 
@@ -23,11 +28,39 @@ public class TagAppService : ITagAppService
         _context = context;
     }
 
-    public async Task<List<TagDto>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<PagedResult<TagDto>> GetAllAsync(GetTagQueryDto request, CancellationToken cancellationToken = default)
     {
         var tags = await _tagRepository.GetAllAsync(cancellationToken);
 
-        return [.. tags.Select(MapToDto)];
+        var page = request.Page <= 0 ? 1 : request.Page;
+        var pageSize = request.PageSize <= 0 ? 20 : request.PageSize;
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var keyword = request.Search.Trim();
+            tags = tags.Where(x => x.Name?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+        }
+
+        var totalItems = tags.Count;
+
+        var pagedTags = tags
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+
+        var items = pagedTags.Select(p => {
+            var dto = MapToDto(p);
+            return dto;
+        }).ToList();
+
+        return new PagedResult<TagDto>
+        {
+            Items = items,
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
+            HasNextPage = page * pageSize < totalItems
+        };
     }
 
     public async Task<TagDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)

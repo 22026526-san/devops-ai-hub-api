@@ -13,5 +13,4 @@ public class PipelinePost
     public Post? SourcePost { get; set; }
     public PipelineVersion? CurrentVersion { get; set; }
     public ICollection<PipelineVersion> Versions { get; set; } = new List<PipelineVersion>();
-    public ICollection<AI.AiPipelineResult> AiPipelineResults { get; set; } = new List<AI.AiPipelineResult>();
 }

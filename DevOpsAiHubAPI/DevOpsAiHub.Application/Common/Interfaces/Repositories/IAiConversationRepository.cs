@@ -4,8 +4,10 @@ namespace DevOpsAiHub.Application.Common.Interfaces.Repositories;
 
 public interface IAiConversationRepository
 {
-    Task<List<AiConversation>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
-    Task<AiConversation?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task AddAsync(AiConversation conversation, CancellationToken cancellationToken = default);
+    Task<AiConversation?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task<IEnumerable<AiConversation>> GetByUserIdAsync(Guid userId, CancellationToken ct = default);
+    Task<AiConversation> CreateAsync(AiConversation conversation, CancellationToken ct = default);
+    Task DeleteAsync(Guid conversationId, CancellationToken ct = default);
+    Task UpdateTitleAsync(Guid conversationId, string newTitle, CancellationToken ct = default);
     void Update(AiConversation conversation);
 }

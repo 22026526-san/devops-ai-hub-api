@@ -12,8 +12,4 @@
     <None Remove="Entities\NewFolder1\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Constants\" />
-  </ItemGroup>
-
 </Project>

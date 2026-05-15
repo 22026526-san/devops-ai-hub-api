@@ -25,7 +25,6 @@ public interface IApplicationDbContext
 
     DbSet<AiConversation> AiConversations { get; }
     DbSet<AiMessage> AiMessages { get; }
-    DbSet<AiPipelineResult> AiPipelineResults { get; }
     DatabaseFacade Database { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

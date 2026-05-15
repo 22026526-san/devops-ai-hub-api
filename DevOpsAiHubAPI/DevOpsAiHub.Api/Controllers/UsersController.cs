@@ -1,4 +1,5 @@
-﻿using DevOpsAiHub.Application.Features.Users.DTOs;
+﻿using DevOpsAiHub.Application.Features.App.Posts.DTOs;
+using DevOpsAiHub.Application.Features.Users.DTOs;
 using DevOpsAiHub.Application.Features.Users.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -33,10 +34,9 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("profiles")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetAllProfiles(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllProfiles([FromQuery] GetUserQueryDto request,CancellationToken cancellationToken)
     {
-        var result = await _userAppService.GetAllProfilesAsync(cancellationToken);
+        var result = await _userAppService.GetAllProfilesAsync(request,cancellationToken);
         return Ok(result);
     }
 
