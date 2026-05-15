@@ -16,14 +16,11 @@ public class AiConversationConfiguration : IEntityTypeConfiguration<AiConversati
         builder.Property(x => x.UserId).HasColumnName("user_id").HasColumnType("char(36)").IsRequired();
         builder.Property(x => x.ConversationType).HasColumnName("conversation_type").HasMaxLength(30).IsRequired();
         builder.Property(x => x.Title).HasColumnName("title").HasMaxLength(255);
-        builder.Property(x => x.RelatedPostId).HasColumnName("related_post_id").HasColumnType("char(36)");
         builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("datetime").IsRequired();
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime").IsRequired();
         builder.Property(x => x.Status).HasColumnName("status").HasMaxLength(50);
-        builder.Property(x => x.MetadataJson).HasColumnName("metadata_json").HasColumnType("longtext");
 
         builder.HasIndex(x => x.UserId).HasDatabaseName("ix_ai_conversations_user_id");
-        builder.HasIndex(x => x.RelatedPostId).HasDatabaseName("ix_ai_conversations_related_post_id");
         builder.HasIndex(x => x.ConversationType).HasDatabaseName("ix_ai_conversations_type");
         builder.HasIndex(x => x.CreatedAt).HasDatabaseName("ix_ai_conversations_created_at");
 
@@ -31,10 +28,5 @@ public class AiConversationConfiguration : IEntityTypeConfiguration<AiConversati
             .WithMany(x => x.AiConversations)
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasOne(x => x.RelatedPost)
-            .WithMany()
-            .HasForeignKey(x => x.RelatedPostId)
-            .OnDelete(DeleteBehavior.SetNull);
     }
 }

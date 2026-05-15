@@ -30,7 +30,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
     public DbSet<AiConversation> AiConversations => Set<AiConversation>();
     public DbSet<AiMessage> AiMessages => Set<AiMessage>();
-    public DbSet<AiPipelineResult> AiPipelineResults => Set<AiPipelineResult>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

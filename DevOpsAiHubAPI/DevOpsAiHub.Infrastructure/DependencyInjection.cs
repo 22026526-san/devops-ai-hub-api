@@ -2,14 +2,17 @@
 using DevOpsAiHub.Application.Common.Interfaces.Persistence;
 using DevOpsAiHub.Application.Common.Interfaces.Repositories;
 using DevOpsAiHub.Application.Common.Interfaces.Services;
+using DevOpsAiHub.Application.Features.AI.UseCase;
 using DevOpsAiHub.Infrastructure.Identity;
 using DevOpsAiHub.Infrastructure.Options;
 using DevOpsAiHub.Infrastructure.Persistence;
 using DevOpsAiHub.Infrastructure.Persistence.Repositories;
 using DevOpsAiHub.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 
 namespace DevOpsAiHub.Infrastructure;
 
@@ -17,6 +20,13 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+
+        var ollamaBase = configuration["Ollama:BaseUrl"] ?? "http://localhost:11434";
+        var chatModel = configuration["Ollama:ChatModel"] ?? "qwen3.5:9b";
+        var embedModel = configuration["Ollama:EmbedModel"] ?? "bge-m3:567m";
+
+        services.AddHttpClient("Qdrant");
+
         services.Configure<JwtOptions>(
             configuration.GetSection(JwtOptions.SectionName));
 
@@ -26,6 +36,10 @@ public static class DependencyInjection
         services.Configure<CloudinaryOptions>(
             configuration.GetSection(CloudinaryOptions.SectionName));
 
+        services.Configure<QdrantOptions>(configuration.GetSection("Qdrant"));
+        services.Configure<OllamaOptions>(configuration.GetSection("Ollama"));
+        services.Configure<RagOptions>(configuration.GetSection("Rag"));
+
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseMySql(
                 configuration.GetConnectionString("DefaultConnection"),
@@ -34,6 +48,12 @@ public static class DependencyInjection
 
         services.AddScoped<IApplicationDbContext>(provider =>
             provider.GetRequiredService<ApplicationDbContext>());
+
+        services.AddSingleton<IChatClient>(_ =>
+            new OllamaChatClient(new Uri(ollamaBase), chatModel));
+
+        services.AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(_ =>
+            new OllamaEmbeddingGenerator(new Uri(ollamaBase), embedModel));
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
@@ -58,10 +78,25 @@ public static class DependencyInjection
         services.AddScoped<ICloudinaryService, CloudinaryService>();
         services.AddScoped<IDateTimeService, DateTimeService>();
 
+        services.AddScoped<IAiConversationRepository, AiConversationRepository>();
+        services.AddScoped<IAiMessageRepository, AiMessageRepository>();
+
+        services.AddSingleton<IEmbeddingService, EmbeddingService>();
+        services.AddScoped<ILlmService, LlmService>();
+        services.AddSingleton<IRerankService, OnnxRerankService>();
+
+        services.AddScoped<IVectorCollectionService, QdrantVectorCollectionService>();
+        services.AddScoped<IRagSearchService, RagSearchService>();
+        services.AddSingleton<ITextChunkerService, TextChunkerService>();
+
+        services.AddScoped<IAiConversationRepository, AiConversationRepository>();
+        services.AddScoped<IAiMessageRepository, AiMessageRepository>();
+        services.AddScoped<AiChatUseCase>();
+        services.AddScoped<IngestDocumentUseCase>();
+
+
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
-
-        services.Configure<QdrantOptions>(configuration.GetSection("AI:Qdrant"));
 
         return services;
     }
