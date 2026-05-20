@@ -1,5 +1,6 @@
 ﻿using DevOpsAiHub.Application.Features.App.Reports.DTOs;
 using DevOpsAiHub.Application.Features.App.Reports.Services;
+using DevOpsAiHub.Application.Features.Users.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,9 +29,9 @@ public class ReportsController : ControllerBase
 
     [HttpGet("api/reports")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromQuery] ReportQuery request,CancellationToken cancellationToken)
     {
-        var result = await _reportAppService.GetAllAsync(cancellationToken);
+        var result = await _reportAppService.GetAllAsync(request, cancellationToken);
         return Ok(result);
     }
 

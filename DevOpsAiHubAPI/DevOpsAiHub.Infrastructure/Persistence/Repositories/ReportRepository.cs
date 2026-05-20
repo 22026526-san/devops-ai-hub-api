@@ -1,6 +1,7 @@
 ﻿using DevOpsAiHub.Application.Common.Interfaces.Persistence;
 using DevOpsAiHub.Application.Common.Interfaces.Repositories;
 using DevOpsAiHub.Domain.Entities.Posts;
+using DevOpsAiHub.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace DevOpsAiHub.Infrastructure.Persistence.Repositories;
@@ -14,14 +15,12 @@ public class ReportRepository : IReportRepository
         _context = context;
     }
 
-    public async Task<List<Report>> GetAllAsync(CancellationToken cancellationToken = default)
+    public IQueryable<Report> Query()
     {
-        return await _context.Reports
+        return _context.Reports
             .Include(x => x.Reporter)
             .Include(x => x.Post)
-            .Include(x => x.Reviewer)
-            .OrderByDescending(x => x.CreatedAt)
-            .ToListAsync(cancellationToken);
+            .Include(x => x.Reviewer).OrderByDescending(x => x.CreatedAt);
     }
 
     public async Task<Report?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)

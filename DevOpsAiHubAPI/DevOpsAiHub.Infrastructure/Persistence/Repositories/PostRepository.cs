@@ -28,13 +28,6 @@ public class PostRepository : IPostRepository
             .Where(x => x.DeletedAt == null && x.Status == PostStatus.Published);
     }
 
-    public async Task<List<Post>> GetAllAsync(CancellationToken cancellationToken = default)
-    {
-        return await Query()
-            .OrderByDescending(x => x.UpdatedAt)
-            .ToListAsync(cancellationToken);
-    }
-
     public async Task<Post?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Posts

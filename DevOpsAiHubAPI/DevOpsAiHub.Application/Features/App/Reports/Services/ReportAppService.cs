@@ -3,8 +3,11 @@ using DevOpsAiHub.Application.Common.Interfaces.Auth;
 using DevOpsAiHub.Application.Common.Interfaces.Persistence;
 using DevOpsAiHub.Application.Common.Interfaces.Repositories;
 using DevOpsAiHub.Application.Common.Interfaces.Services;
+using DevOpsAiHub.Application.Common.Models;
 using DevOpsAiHub.Application.Features.App.Reports.DTOs;
+using DevOpsAiHub.Application.Features.Users.DTOs;
 using DevOpsAiHub.Domain.Entities.Posts;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevOpsAiHub.Application.Features.App.Reports.Services;
 
@@ -68,26 +71,50 @@ public class ReportAppService : IReportAppService
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<List<ReportDto>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<PagedResult<ReportDto>> GetAllAsync(ReportQuery request ,CancellationToken cancellationToken = default)
     {
-        var reports = await _reportRepository.GetAllAsync(cancellationToken);
+        var page = request.Page <= 0 ? 1 : request.Page;
+        var pageSize = request.PageSize <= 0 ? 20 : request.PageSize;
 
-        return reports.Select(x => new ReportDto
+        var query = _reportRepository.Query();
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var keyword = request.Search.Trim().ToLower();
+            query = query.Where(x => x.Post.Title.ToLower().Contains(keyword));
+        }
+
+        var totalItems = await query.CountAsync(cancellationToken);
+
+        var reports = query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+
+        var items = reports.Select(x => new ReportDto
         {
             Id = x.Id,
             ReporterId = x.ReporterId,
-            ReporterUsername = x.Reporter.Username,
+            ReporterUsername = x.Reporter.Profile.FullName,
             PostId = x.PostId,
             PostTitle = x.Post.Title,
             Reason = x.Reason,
             Description = x.Description,
             Status = x.Status,
             ReviewedBy = x.ReviewedBy,
-            ReviewerUsername = x.Reviewer?.Username,
+            ReviewerUsername = x.Reviewer.Profile.FullName,
             ReviewNote = x.ReviewNote,
             CreatedAt = x.CreatedAt,
             ReviewedAt = x.ReviewedAt
         }).ToList();
+        return new PagedResult<ReportDto>
+        {
+            Items = items,
+            Page = page,
+            PageSize = pageSize,
+            TotalItems = totalItems,
+            TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
+            HasNextPage = page * pageSize < totalItems
+        };
     }
 
     public async Task ResolveAsync(Guid reportId, ReviewReportRequestDto request, CancellationToken cancellationToken = default)

@@ -86,9 +86,9 @@ public class PostAppService : IPostAppService
 
         query = request.SortBy switch
         {
-            "likes_desc" => query.OrderByDescending(x => x.LikeCount).ThenByDescending(x => x.CreatedAt),
-            "views_desc" => query.OrderByDescending(x => x.ViewCount).ThenByDescending(x => x.CreatedAt),
-            _ => query.OrderByDescending(x => x.CreatedAt)
+            "likes_desc" => query.OrderByDescending(x => x.LikeCount).ThenByDescending(x => x.UpdatedAt),
+            "views_desc" => query.OrderByDescending(x => x.ViewCount).ThenByDescending(x => x.UpdatedAt),
+            _ => query.OrderByDescending(x => x.UpdatedAt)
         };
 
         var totalItems = await query.CountAsync(cancellationToken);

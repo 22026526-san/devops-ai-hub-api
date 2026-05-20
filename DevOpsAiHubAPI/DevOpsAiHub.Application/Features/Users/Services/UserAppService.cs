@@ -145,6 +145,7 @@ public class UserAppService : IUserAppService
                 GithubUrl = profile?.GithubUrl,
                 FollowerCount = followerCount,
                 FollowingCount = followingCount,
+                Role = user.Role,
                 Status = user.Status,
                 CreatedAt = profile?.CreatedAt
             };
