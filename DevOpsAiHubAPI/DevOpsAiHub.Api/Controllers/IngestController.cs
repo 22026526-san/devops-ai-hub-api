@@ -10,26 +10,16 @@ namespace DevOpsAiHub.Api.Controllers;
 public class IngestController : ControllerBase
 {
     private readonly IngestDocumentUseCase _useCase;
-    private readonly ILogger<IngestController> _logger;
 
-    public IngestController(
-        IngestDocumentUseCase useCase,
-        ILogger<IngestController> logger)
+    public IngestController(IngestDocumentUseCase useCase)
     {
         _useCase = useCase;
-        _logger = logger;
     }
 
-    /// <summary>
-    /// Upload file để ingest vào Qdrant collection devops_articles
-    /// Hỗ trợ: .pdf, .txt, .md
-    /// </summary>
     [HttpPost("upload")]
     [Consumes("multipart/form-data")]
     [DisableRequestSizeLimit]
     [RequestFormLimits(MultipartBodyLengthLimit = 1024L * 1024L * 200L)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Upload(
         [FromForm] List<IFormFile> files,
         CancellationToken ct)
@@ -38,13 +28,14 @@ public class IngestController : ControllerBase
             return BadRequest(new { error = "No files uploaded." });
 
         var extracted = new List<(string RawText, string FileName, string FileType)>();
+        var failedFiles = new List<object>();
 
         foreach (var file in files)
         {
             var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
             if (ext is not (".pdf" or ".txt" or ".md"))
             {
-                _logger.LogWarning("Skipped unsupported file: {FileName}", file.FileName);
+                failedFiles.Add(new { fileName = file.FileName, reason = "Unsupported file type. Only .pdf, .txt, .md are allowed." });
                 continue;
             }
 
@@ -64,22 +55,29 @@ public class IngestController : ControllerBase
                 if (!string.IsNullOrWhiteSpace(raw))
                 {
                     extracted.Add((raw, file.FileName, ext.TrimStart('.')));
-                    _logger.LogInformation(
-                        "Extracted {Chars} chars from {FileName}", raw.Length, file.FileName);
+                }
+                else
+                {
+                    failedFiles.Add(new { fileName = file.FileName, reason = "File is empty or contains no extractable text." });
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to extract {FileName}", file.FileName);
+                failedFiles.Add(new { fileName = file.FileName, reason = $"Extraction failed: {ex.Message}" });
             }
             finally
             {
                 System.IO.File.Delete(tmp);
             }
         }
-
         if (extracted.Count == 0)
-            return BadRequest(new { error = "No extractable text. Supported: .pdf, .txt, .md" });
+        {
+            return BadRequest(new
+            {
+                error = "No files could be extracted successfully.",
+                failedDetails = failedFiles
+            });
+        }
 
         var result = await _useCase.ExecuteAsync(extracted, ct);
         return Ok(result);
