@@ -2,6 +2,7 @@
 using DevOpsAiHub.Application.Common.Interfaces.Persistence;
 using DevOpsAiHub.Application.Common.Interfaces.Repositories;
 using DevOpsAiHub.Application.Common.Interfaces.Services;
+using DevOpsAiHub.Application.Features.Admin.UseCase;
 using DevOpsAiHub.Application.Features.AI.UseCase;
 using DevOpsAiHub.Infrastructure.Identity;
 using DevOpsAiHub.Infrastructure.Options;
@@ -88,12 +89,13 @@ public static class DependencyInjection
         services.AddScoped<IVectorCollectionService, QdrantVectorCollectionService>();
         services.AddScoped<IRagSearchService, RagSearchService>();
         services.AddSingleton<ITextChunkerService, TextChunkerService>();
+        services.AddScoped<IDashboardService, DashboardService>();
 
         services.AddScoped<IAiConversationRepository, AiConversationRepository>();
         services.AddScoped<IAiMessageRepository, AiMessageRepository>();
         services.AddScoped<AiChatUseCase>();
         services.AddScoped<IngestDocumentUseCase>();
-
+        services.AddScoped<GetDashboardSummaryUseCase>();
 
         services.AddHttpContextAccessor();
         services.AddMemoryCache();

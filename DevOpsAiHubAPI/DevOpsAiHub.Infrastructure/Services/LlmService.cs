@@ -13,10 +13,6 @@ public class LlmService : ILlmService
         _chatClient = chatClient;
     }
 
-    public Task<string> ChatAsync(
-        string systemPrompt, string userMessage, CancellationToken ct = default)
-        => ChatWithHistoryAsync(systemPrompt, [], userMessage, ct);
-
     public async Task<string> ChatWithHistoryAsync(
         string systemPrompt,
         IEnumerable<ChatMessageDto> history,
@@ -45,7 +41,7 @@ public class LlmService : ILlmService
                 ["num_ctx"] = 4096,
             }
         };
-       
+
         var result = await _chatClient.GetResponseAsync(messages, options, ct);
         return result.Text ?? string.Empty;
         
